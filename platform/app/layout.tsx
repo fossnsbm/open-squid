@@ -19,6 +19,10 @@ const squid = localFont({
 export const metadata: Metadata = {
     title: "Open Squid 25",
     description: "TBA",
+    icons: {
+        icon: '/icon.ico',
+        apple: '/apple-touch-icon.png'
+    }
 };
 
 export default function RootLayout({
