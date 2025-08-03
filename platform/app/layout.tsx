@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
-import { Gafata } from "next/font/google";
-import { Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
+import localFont from "next/font/local";
+
 import "./globals.css";
 
-const gafata = Gafata({
-    weight: "400",
-    variable: "--font-gafata",
+const inter = Inter({
+    display: "swap",
+    variable: "--font-inter",
     subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
-});
+const squid = localFont({
+    src: '../public/fonts/Game Of Squids.ttf',
+    display: 'swap',
+    variable: "--font-squid"
+})
 
 export const metadata: Metadata = {
     title: "Open Squid 25",
@@ -26,10 +28,10 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body
-                className={`${gafata.variable} ${geistMono.variable} antialiased`}
-            >
-                {children}
+            <body className={`${inter.variable} ${squid.variable} antialiased`}>
+                <div className="min-h-screen">
+                    {children}
+                </div>
             </body>
         </html>
     );

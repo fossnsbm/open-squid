@@ -8,8 +8,8 @@
 @theme inline {
     --color-background: var(--background);
     --color-foreground: var(--foreground);
-    --font-gafata: var(--font-gafata);
-    --font-mono: var(--font-geist-mono);
+    --font-inter: var(--font-inter);
+    --font-squid: var(--font-squid);
 }
 
 @media (prefers-color-scheme: dark) {
