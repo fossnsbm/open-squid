@@ -29,19 +29,19 @@ const Header: React.FC = () => {
                     <div className="flex items-baseline space-x-8 font-inter">
                         <a
                             href="/"
-                            className="text-white hover:text-gray-300 py-2 text-md font-light transition-colors duration-200"
+                            className="text-white hover:text-pink-700 py-2 text-md font-light transition-colors duration-200"
                         >
                             Home
                         </a>
                         <a
                             href="/#about"
-                            className="text-white hover:text-gray-300 py-2 text-md font-light transition-colors duration-200"
+                            className="text-white hover:text-pink-700 py-2 text-md font-light transition-colors duration-200"
                         >
                             About us
                         </a>
                         <a
                             href="/#register"
-                            className="text-white hover:text-gray-300 py-2 text-md font-light transition-colors duration-200"
+                            className="text-white hover:text-pink-700 py-2 text-md font-light transition-colors duration-200"
                         >
                             Register Now
                         </a>
