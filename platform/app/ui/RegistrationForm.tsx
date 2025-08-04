@@ -78,7 +78,7 @@ export default function RegistrationForm() {
         e.preventDefault();
         if (validate()) {
             console.log("Submitted Team Data:", team);
-            // You can add submission logic here
+            // submission logic here
         }
     };
 
@@ -125,7 +125,7 @@ export default function RegistrationForm() {
                 </div>
 
                 {/* Section Title */}
-                <div className="bg-purple-700 text-purple-200 text-center py-2 rounded-md font-semibold tracking-wide">
+                <div className="bg-pink-800 text-purple-200 text-center py-2 rounded-md font-semibold tracking-wide">
                     TEAM MEMBER'S DETAILS
                 </div>
 
@@ -172,7 +172,7 @@ export default function RegistrationForm() {
                 <div className="w-full px-16">
                     <button
                         type="submit"
-                        className="w-full py-2 bg-purple-700 text-purple-200 rounded-md font-semibold tracking-wide hover:bg-purple-600 transition"
+                        className="w-full py-2 bg-pink-800 text-purple-200 rounded-md font-semibold tracking-wide hover:bg-purple-600 transition"
                     >
                         SUBMIT
                     </button>
