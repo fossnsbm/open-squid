@@ -13,7 +13,7 @@ function useIsMobile() {
     return isMobile;
 }
 import Image from "next/image";
-import TiltedCard from "@/src/blocks/Components/TiltedCard/TiltedCard";
+import TiltedCard from "@/app/components/common/TiltedCard";
 
 const PhaseSection: React.FC = () => {
     const isMobile = useIsMobile();
