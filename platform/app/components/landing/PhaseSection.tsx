@@ -52,7 +52,7 @@ const PhaseSection: React.FC = () => {
         setCurrent((prev) => (prev === cards.length - 1 ? 0 : prev + 1));
 
     return (
-        <div className="relative flex mt-64 ">
+        <div className="relative h-screen flex mt-64 ">
             <div className="flex justify-center items-center absolute inset-0 z-10 flex-col space-y-20">
                 <div>
                     <h1 className="text-white text-2xl md:text-3xl lg:text-4xl tracking-wider mb-4 font-squid">
@@ -97,11 +97,10 @@ const PhaseSection: React.FC = () => {
                             {cards.map((_, idx) => (
                                 <span
                                     key={idx}
-                                    className={`inline-block w-2 h-2 rounded-full ${
-                                        idx === current
-                                            ? "bg-pink-600"
-                                            : "bg-gray-300"
-                                    }`}
+                                    className={`inline-block w-2 h-2 rounded-full ${idx === current
+                                        ? "bg-pink-600"
+                                        : "bg-gray-300"
+                                        }`}
                                 />
                             ))}
                         </div>
