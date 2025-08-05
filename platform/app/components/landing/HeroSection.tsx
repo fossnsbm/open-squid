@@ -5,7 +5,7 @@ import Image from 'next/image';
 
 const HeroSection: React.FC = () => {
     return (
-        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+        <div className="relative min-h-screen flex items-center justify-center z-10 pointer-events-none">
 
             <div className="text-center pointer-events-auto">
                 <h1 className="text-white text-7xl md:text-8xl lg:text-9xl tracking-wider mb-4 font-squid">

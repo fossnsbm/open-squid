@@ -3,6 +3,7 @@
 :root {
     --background: #ffffff;
     --foreground: #171717;
+    --card-background: #0B0005;
 }
 
 @theme inline {
@@ -10,6 +11,7 @@
     --color-foreground: var(--foreground);
     --font-inter: var(--font-inter);
     --font-squid: var(--font-squid);
+    --color-cardbackground: var(--card-background);
 }
 
 @media (prefers-color-scheme: dark) {
