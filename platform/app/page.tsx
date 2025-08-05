@@ -5,11 +5,11 @@ import PhaseSection from "./components/landing/PhaseSection";
 export default function Home() {
     return (
         <>
-            {/* <RippleGrid /> */}
+            <RippleGrid />
             <Header />
-            {/* <HeroSection /> */}
-            <PhaseSection />
-          
+            <HeroSection />
+           
+           {/* <PhaseSection /> */}
   
         </>
     );
