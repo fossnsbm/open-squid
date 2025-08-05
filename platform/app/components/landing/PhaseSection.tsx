@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-
+import {ChevronLeft,ChevronRight} from "lucide-react"
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -38,6 +38,7 @@ const PhaseSection: React.FC = () => {
         overlayContent: <p className="tilted-card-demo-text">Kendrick Lamar - GNX</p>
       },
     ];
+    
 
     const [current, setCurrent] = useState(0);
 
@@ -59,11 +60,12 @@ const PhaseSection: React.FC = () => {
                 <button
                   aria-label="Previous"
                   onClick={handlePrev}
-                  className="p-2 rounded-full bg-white/80 text-black mr-4 shadow hover:bg-pink-600 transition-colors duration-200 flex items-center justify-center"
+                 className= "text-white mr-4 shadow hover:text-pink-600 transition-colors duration-200 flex items-center justify-center "
                 >
-                  <svg width="20" height="20" fill="none" viewBox="0 0 20 20">
-                    <path d="M13 16l-5-6 5-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                 <ChevronLeft
+                  size={48}
+                 
+                 />
                 </button>
                 <TiltedCard
                   imageSrc={cards[current].imageSrc}
@@ -83,11 +85,11 @@ const PhaseSection: React.FC = () => {
                 <button
                   aria-label="Next"
                   onClick={handleNext}
-                 className="p-2 rounded-full bg-white/80 text-black mr-4 shadow hover:bg-pink-600 transition-colors duration-200 flex items-center justify-center"
+                 className= "text-white ml-4 shadow hover:text-pink-600 transition-colors duration-200 flex items-center justify-center"
                 >
-                  <svg width="20" height="20" fill="none" viewBox="0 0 20 20">
-                    <path d="M7 4l5 6-5 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                 <ChevronRight
+                  size={48}
+                 />
                 </button>
               </div>
               <div className="flex justify-center mt-4 space-x-2">
