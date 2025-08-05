@@ -308,7 +308,7 @@ void main() {
     return (
         <div
             ref={containerRef}
-            className="w-full h-full absolute z-0 overflow-hidden [&_canvas]:block"
+            className="w-full h-full  z-0 overflow-hidden [&_canvas]:block"
         />
     );
 };
