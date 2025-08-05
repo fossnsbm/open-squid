@@ -8,9 +8,8 @@ export default function Home() {
             <RippleGrid />
             <Header />
             <HeroSection />
-           
-           {/* <PhaseSection /> */}
-  
+            <PhaseSection />
+
         </>
     );
 }
