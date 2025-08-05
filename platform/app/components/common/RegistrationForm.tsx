@@ -83,7 +83,7 @@ export default function RegistrationForm() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
+        <div className="flex items-center justify-center px-4">
             <form
                 className="bg-gray-800 p-8 rounded-xl w-full max-w-md space-y-6 shadow-lg"
                 onSubmit={handleSubmit}
