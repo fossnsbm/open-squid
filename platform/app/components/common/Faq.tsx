@@ -46,19 +46,19 @@ const FAQSection = () => {
                         className={`${show
                             ? "bg-gradient-to-b from-pink-600/90 to-pink-900/10 "
                             : "bg-gradient-to-r from-pink-600 to-pink-900 hover:from-pink-800 hover:to-pink-900 opacity-80"
-                            } border-primary border-2 py-3 px-5 flex gap-2 relative w-full justify-between cursor-pointer max-w-[900px] transition-all duration-300  rounded-xl`}
+                            } border-primary border-2 py-2 px-5 flex gap-2 relative w-full justify-between cursor-pointer max-w-[900px] transition-all duration-300  rounded-xl`}
                     >
                         <div className="w-full flex flex-col gap-2">
                             <div className="flex justify-between items-center gap-2">
                                 <h4
                                     className={`${show ? "text-primary" : "text-white"
-                                        } md:text-2xl transition-all duration-300 `}
+                                        } md:text-md transition-all duration-300 uppercase `}
                                 >
                                     {question}
                                 </h4>
                             </div>
                             {show && (
-                                <p className="text-white text-left mb-2 p-4 rounded-2xl font-bold bg-white-700/50">
+                                <p className="text-white text-left mb-2 p-4 rounded-2xl font-bold bg-white-700/50 uppercase">
                                     {answer}
                                 </p>
                             )}

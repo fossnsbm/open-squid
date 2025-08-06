@@ -1,7 +1,21 @@
-"use client"
+"use client";
 
-import React, { useState } from 'react';
-import Image from 'next/image';
+import React, { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+
+const navLinks = [
+    { name: "Home", href: "/" },
+    { name: "LeaderBoard", href: "/" },
+    { name: "Playground", href: "/" },
+];
+
+const mobileLinks = [
+    { name: "Home", href: "/" },
+    { name: "LeaderBoard", href: "/" },
+    { name: "Playground", href: "/" },
+    { name: "Register Now", href: "/#register" },
+];
 
 const Header: React.FC = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -11,47 +25,41 @@ const Header: React.FC = () => {
     };
 
     return (
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent">
-            <div className="flex items-center justify-between h-16 px-4">
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent backdrop-blur-md shadow-lg">
+            <div className="flex items-center justify-center gap-64 h-16 px-4">
                 <div className="flex-shrink-0">
-                    <a href='/'>
+                    <Link href="/">
                         <Image
                             src="/logo.png"
                             alt="Open Squid Logo"
                             width={120}
                             height={40}
-                            className="h-12 w-auto"
+                            className="h-18 w-auto"
                         />
-                    </a>
+                    </Link>
                 </div>
 
                 <div className="hidden md:block">
                     <div className="flex items-baseline space-x-8 font-inter">
-                        <a
-                            href="/#hero"
-                            className="text-white hover:text-pink-700 py-2 text-md font-light transition-colors duration-200"
-                        >
-                            Home
-                        </a>
-                        <a
-                            href="/#phases"
-                            className="text-white hover:text-pink-700 py-2 text-md font-light transition-colors duration-200"
-                        >
-                            Phases
-                        </a>
-                        <a
-                            href="/#about"
-                            className="text-white hover:text-pink-700 py-2 text-md font-light transition-colors duration-200"
-                        >
-                            About us
-                        </a>
-                        <a
-                            href="/#register"
-                            className="text-white hover:text-pink-700 py-2 text-md font-light transition-colors duration-200"
-                        >
-                            Register Now
-                        </a>
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.name}
+                                href={link.href}
+                                className="text-white hover:text-pink-700 py-2 text-xl font-squid transition-colors duration-200 uppercase"
+                            >
+                                {link.name}
+                            </Link>
+                        ))}
                     </div>
+                </div>
+
+                <div className="hidden md:block">
+                    <Link
+                        href="/#register"
+                        className="text-pink-600 hover:text-pink-700 py-2 text-xl font-squid transition-colors duration-200 uppercase"
+                    >
+                        Register Now
+                    </Link>
                 </div>
 
                 {/* Mobile menu toggle */}
@@ -62,10 +70,10 @@ const Header: React.FC = () => {
                         className="text-white hover:text-gray-300 inline-flex items-center justify-center p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-white transition-colors duration-200"
                     >
                         <span className="sr-only">Open main menu</span>
-
                         <svg
-                            className={`block h-6 w-6 transform transition-transform duration-200 ${isMobileMenuOpen ? 'rotate-90' : ''
-                                }`}
+                            className={`block h-6 w-6 transform transition-transform duration-200 ${
+                                isMobileMenuOpen ? "rotate-90" : ""
+                            }`}
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
@@ -93,34 +101,24 @@ const Header: React.FC = () => {
 
             {/* Mobile menu */}
             <div
-                className={`md:hidden transition-all duration-300 ease-in-out ${isMobileMenuOpen
-                    ? 'max-h-64 opacity-100'
-                    : 'max-h-0 opacity-0 overflow-hidden'
-                    }`}
+                className={`md:hidden transition-all duration-300 ease-in-out ${
+                    isMobileMenuOpen
+                        ? "max-h-64 opacity-100"
+                        : "max-h-0 opacity-0 overflow-hidden"
+                }`}
                 id="mobile-menu"
             >
                 <div className="px-2 pt-2 pb-3 space-y-1 bg-black bg-opacity-90 backdrop-blur-sm">
-                    <a
-                        href="/"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="text-white hover:text-gray-300 block px-3 py-2 text-base font-medium font-inter transition-colors duration-200"
-                    >
-                        Home
-                    </a>
-                    <a
-                        href="/#about"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="text-white hover:text-gray-300 block px-3 py-2 text-base font-medium font-inter transition-colors duration-200"
-                    >
-                        About us
-                    </a>
-                    <a
-                        href="/#register"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="text-white hover:text-gray-300 block px-3 py-2 text-base font-medium font-inter transition-colors duration-200"
-                    >
-                        Register Now
-                    </a>
+                    {mobileLinks.map((link) => (
+                        <Link
+                            key={link.name}
+                            href={link.href}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="text-white hover:text-gray-300 block px-3 py-2 text-base font-medium font-squid uppercase transition-colors duration-200"
+                        >
+                            {link.name}
+                        </Link>
+                    ))}
                 </div>
             </div>
         </nav>

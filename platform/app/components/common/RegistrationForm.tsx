@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+
 import { authClient } from "@/lib/auth-client"; // Import authClient
 import { useRouter } from "next/navigation"; // Import router for redirecting
 
@@ -20,6 +21,15 @@ export default function RegistrationForm() {
         password: string;
         confirmPassword: string;
         members: TeamMember[];
+    };
+
+    const [showToast, setShowToast] = useState<{
+        message: string;
+        type: "success" | "error";
+    } | null>(null);
+
+    const showToastMessage = (message: string, type: "success" | "error") => {
+        setShowToast({ message, type });
     };
 
     const [team, setTeam] = useState<Team>({
@@ -78,8 +88,10 @@ export default function RegistrationForm() {
     };
 
     const removeMember = () => {
+
         if (team.members.length > 3) { // Minimum of 3 members
             const updatedMembers = team.members.filter((_, i) => i !== currentMemberIndex);
+
             setTeam({ ...team, members: updatedMembers });
             if (currentMemberIndex >= updatedMembers.length) {
                 setCurrentMemberIndex(updatedMembers.length - 1);
@@ -121,7 +133,11 @@ export default function RegistrationForm() {
         }
 
         const memberErrors = team.members.map((member) => {
-            const memberError: { id?: string; name?: string; studentId?: string } = {};
+            const memberError: {
+                id?: string;
+                name?: string;
+                studentId?: string;
+            } = {};
             if (!member.name.trim()) {
                 memberError.name = "Name is required";
             }
@@ -149,6 +165,7 @@ export default function RegistrationForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (validate()) {
+
             setIsSubmitting(true);
 
             try {
@@ -193,6 +210,7 @@ export default function RegistrationForm() {
             } finally {
                 setIsSubmitting(false);
             }
+
         }
     };
 
@@ -200,6 +218,13 @@ export default function RegistrationForm() {
 
     return (
         <div className="flex items-center justify-center px-4 font-squid">
+            {showToast && (
+                <Toast
+                    message={showToast.message}
+                    type={showToast.type}
+                    onClose={() => setShowToast(null)}
+                />
+            )}
             <form
                 className="bg-transparent p-4 rounded-xl border-2 border-pink-800 w-full max-w-md lg:max-w-xl space-y-3 shadow-lg"
                 onSubmit={handleSubmit}
@@ -271,7 +296,7 @@ export default function RegistrationForm() {
                 <div>
                     <label className="block text-gray-300 text-xs text-left mb-1 tracking-wide">
                         TEAM PASSWORD
-                    </label>
+                    </labefemovate25l>
                     <input
                         type="password"
                         className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-pink-600 transition-colors text-sm font-inter"
@@ -299,7 +324,10 @@ export default function RegistrationForm() {
                         placeholder="••••••••"
                         value={team.confirmPassword}
                         onChange={(e) =>
-                            setTeam({ ...team, confirmPassword: e.target.value })
+                            setTeam({
+                                ...team,
+                                confirmPassword: e.target.value,
+                            })
                         }
                     />
                     {errors.confirmPassword && (
@@ -334,7 +362,9 @@ export default function RegistrationForm() {
                     <div className="bg-gray-800 border border-gray-600 p-3 rounded-lg">
                         <div className="flex items-center justify-between mb-2">
                             <h4 className="text-white font-medium text-sm text-left">
-                                {currentMemberIndex === 0 ? "TEAM LEADER" : `MEMBER ${currentMemberIndex + 1}`}
+                                {currentMemberIndex === 0
+                                    ? "TEAM LEADER"
+                                    : `MEMBER ${currentMemberIndex + 1}`}
                             </h4>
                             <div className="flex items-center gap-2">
                                 <button
@@ -346,12 +376,16 @@ export default function RegistrationForm() {
                                     ‹
                                 </button>
                                 <div className="text-gray-400 text-sm px-2">
-                                    {currentMemberIndex + 1} / {team.members.length}
+                                    {currentMemberIndex + 1} /{" "}
+                                    {team.members.length}
                                 </div>
                                 <button
                                     type="button"
                                     onClick={nextMember}
-                                    disabled={currentMemberIndex === team.members.length - 1}
+                                    disabled={
+                                        currentMemberIndex ===
+                                        team.members.length - 1
+                                    }
                                     className="text-white hover:text-pink-400 disabled:text-gray-500 disabled:cursor-default transition-colors text-xl cursor-pointer p-1 rounded hover:bg-gray-700 disabled:hover:bg-transparent"
                                 >
                                     ›
@@ -371,12 +405,19 @@ export default function RegistrationForm() {
                                     placeholder="FULL NAME"
                                     value={currentMember?.name || ""}
                                     onChange={(e) =>
-                                        handleInputChange(currentMemberIndex, "name", e.target.value)
+                                        handleInputChange(
+                                            currentMemberIndex,
+                                            "name",
+                                            e.target.value
+                                        )
                                     }
                                 />
                                 {errors.members?.[currentMemberIndex]?.name && (
                                     <p className="text-red-500 text-xs mt-1 font-inter">
-                                        {errors.members[currentMemberIndex].name}
+                                        {
+                                            errors.members[currentMemberIndex]
+                                                .name
+                                        }
                                     </p>
                                 )}
                             </div>
@@ -391,12 +432,20 @@ export default function RegistrationForm() {
                                     placeholder="STUDENT ID NUMBER"
                                     value={currentMember?.studentId || ""}
                                     onChange={(e) =>
-                                        handleInputChange(currentMemberIndex, "studentId", e.target.value)
+                                        handleInputChange(
+                                            currentMemberIndex,
+                                            "studentId",
+                                            e.target.value
+                                        )
                                     }
                                 />
-                                {errors.members?.[currentMemberIndex]?.studentId && (
+                                {errors.members?.[currentMemberIndex]
+                                    ?.studentId && (
                                     <p className="text-red-500 text-xs mt-1 font-inter">
-                                        {errors.members[currentMemberIndex].studentId}
+                                        {
+                                            errors.members[currentMemberIndex]
+                                                .studentId
+                                        }
                                     </p>
                                 )}
                             </div>
@@ -412,6 +461,7 @@ export default function RegistrationForm() {
                                 Remove Member
                             </button>
                         )}
+
                     </div>
                 </div>
 
