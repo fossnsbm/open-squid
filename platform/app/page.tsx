@@ -3,10 +3,13 @@ import RippleGrid from "./components/landing/RippleGrid";
 import HeroSection from "./components/landing/HeroSection";
 import PhaseSection from "./components/landing/PhaseSection";
 import RegisterSection from "./components/landing/RegisterSection";
+
 export default function Home() {
     return (
         <>
-            <RippleGrid />
+            <div className="fixed inset-0 z-0 w-full h-full overflow-hidden">
+                <RippleGrid />
+            </div>
             <Header />
             <HeroSection />
             <PhaseSection />
