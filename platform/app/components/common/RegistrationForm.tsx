@@ -3,6 +3,7 @@ import React, { useState } from "react";
 
 import { authClient } from "@/lib/auth-client"; // Import authClient
 import { useRouter } from "next/navigation"; // Import router for redirecting
+import Toast from "./Toast";
 
 export default function RegistrationForm() {
     const router = useRouter(); // Add router
@@ -186,7 +187,7 @@ export default function RegistrationForm() {
 
                 if (signUpResponse.data?.user) {
                     console.log("Registration successful!");
-                    alert("Registration successful! Please sign in to access your team dashboard.");
+                    showToastMessage("Registration successful!", "success");
 
                     setTeam({
                         teamName: "",
@@ -206,7 +207,7 @@ export default function RegistrationForm() {
                 }
             } catch (error: any) {
                 console.error("Registration error:", error);
-                alert(`Registration failed: ${error.message}`);
+                showToastMessage("Registration failed!", "error");
             } finally {
                 setIsSubmitting(false);
             }
@@ -296,7 +297,7 @@ export default function RegistrationForm() {
                 <div>
                     <label className="block text-gray-300 text-xs text-left mb-1 tracking-wide">
                         TEAM PASSWORD
-                    </labefemovate25l>
+                    </label>
                     <input
                         type="password"
                         className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-pink-600 transition-colors text-sm font-inter"
@@ -441,13 +442,13 @@ export default function RegistrationForm() {
                                 />
                                 {errors.members?.[currentMemberIndex]
                                     ?.studentId && (
-                                    <p className="text-red-500 text-xs mt-1 font-inter">
-                                        {
-                                            errors.members[currentMemberIndex]
-                                                .studentId
-                                        }
-                                    </p>
-                                )}
+                                        <p className="text-red-500 text-xs mt-1 font-inter">
+                                            {
+                                                errors.members[currentMemberIndex]
+                                                    .studentId
+                                            }
+                                        </p>
+                                    )}
                             </div>
                         </div>
 
@@ -456,7 +457,7 @@ export default function RegistrationForm() {
                             <button
                                 type="button"
                                 onClick={removeMember}
-                                className="mt-2 text-red-400 hover:text-red-300 text-xs"
+                                className="mt-2 text-red-400 hover:text-red-300 text-xs uppercase"
                             >
                                 Remove Member
                             </button>
