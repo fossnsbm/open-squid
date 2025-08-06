@@ -3,7 +3,7 @@ import RippleGrid from "./components/landing/RippleGrid";
 import HeroSection from "./components/landing/HeroSection";
 import PhaseSection from "./components/landing/PhaseSection";
 import RegisterSection from "./components/landing/RegisterSection";
-
+import Footer from "./components/common/Footer";
 export default function Home() {
     return (
         <>
@@ -14,6 +14,7 @@ export default function Home() {
             <HeroSection />
             <PhaseSection />
             <RegisterSection />
+            <Footer />
 
         </>
     );
