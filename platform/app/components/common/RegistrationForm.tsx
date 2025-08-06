@@ -1,7 +1,13 @@
 "use client";
 import React, { useState } from "react";
-import Toast from "./Toast"; // Assuming Toast is a modal component for displaying messages
+
+import { authClient } from "@/lib/auth-client"; // Import authClient
+import { useRouter } from "next/navigation"; // Import router for redirecting
+
 export default function RegistrationForm() {
+    const router = useRouter(); // Add router
+    const [isSubmitting, setIsSubmitting] = useState(false); // Add submission state
+
     type TeamMember = {
         id: string;
         name: string;
@@ -32,7 +38,7 @@ export default function RegistrationForm() {
         contactNumber: "",
         password: "",
         confirmPassword: "",
-        members: Array(4).fill({ id: "", name: "", studentId: "" }),
+        members: Array(3).fill({ id: "", name: "", studentId: "" }),
     });
 
     const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
@@ -72,21 +78,21 @@ export default function RegistrationForm() {
     };
 
     const addMember = () => {
-        if (team.members.length < 5) {
+        if (team.members.length < 4) { // Maximum of 4 members
             setTeam({
                 ...team,
                 members: [...team.members, { id: "", name: "", studentId: "" }],
             });
+            setCurrentMemberIndex(team.members.length);
         }
     };
 
     const removeMember = () => {
-        if (team.members.length > 1) {
-            const updatedMembers = team.members.filter(
-                (_, i) => i !== currentMemberIndex
-            );
+
+        if (team.members.length > 3) { // Minimum of 3 members
+            const updatedMembers = team.members.filter((_, i) => i !== currentMemberIndex);
+
             setTeam({ ...team, members: updatedMembers });
-            // Adjust current index if needed
             if (currentMemberIndex >= updatedMembers.length) {
                 setCurrentMemberIndex(updatedMembers.length - 1);
             }
@@ -96,40 +102,36 @@ export default function RegistrationForm() {
     const validate = () => {
         const newErrors: typeof errors = {};
 
-        // Team name validation
         if (!team.teamName.trim()) {
             newErrors.teamName = "Team name is required";
         }
 
-        // Team email validation
         if (!team.teamEmail.trim()) {
             newErrors.teamEmail = "Team email is required";
         } else if (!/\S+@\S+\.\S+/.test(team.teamEmail)) {
             newErrors.teamEmail = "Invalid email format";
+        } else if (!team.teamEmail.endsWith("@students.nsbm.ac.lk")) {
+            newErrors.teamEmail = "Must use a NSBM student email (@students.nsbm.ac.lk)";
         }
 
-        // Contact number validation
         if (!team.contactNumber.trim()) {
             newErrors.contactNumber = "Contact number is required";
         } else if (!/^\d{10}$/.test(team.contactNumber)) {
             newErrors.contactNumber = "Contact number must be 10 digits";
         }
 
-        // Password validation
         if (!team.password) {
             newErrors.password = "Password is required";
         } else if (team.password.length < 8) {
             newErrors.password = "Password must be at least 8 characters";
         }
 
-        // Confirm password validation
         if (!team.confirmPassword) {
             newErrors.confirmPassword = "Please confirm your password";
         } else if (team.password !== team.confirmPassword) {
             newErrors.confirmPassword = "Passwords do not match";
         }
 
-        // Members validation
         const memberErrors = team.members.map((member) => {
             const memberError: {
                 id?: string;
@@ -141,6 +143,8 @@ export default function RegistrationForm() {
             }
             if (!member.studentId.trim()) {
                 memberError.studentId = "Student ID is required";
+            } else if (!/^\d{5}$/.test(member.studentId)) {
+                memberError.studentId = "Student ID must be 5 digits";
             }
             return memberError;
         });
@@ -158,15 +162,55 @@ export default function RegistrationForm() {
         );
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (validate()) {
-            console.log("Submitted Team Data:", team);
-            // TODO: Integrate with Better Auth signup
 
-             //TOAST MESSAGE
-            showToastMessage("Team registered successfully!", "success");
-            
+            setIsSubmitting(true);
+
+            try {
+                console.log("Submitting team data:", {
+                    email: team.teamEmail,
+                    name: team.teamName,
+                    contactNumber: team.contactNumber,
+                    members: team.members,
+                });
+
+                const signUpResponse = await authClient.signUp.email({
+                    email: team.teamEmail,
+                    password: team.password,
+                    name: team.teamName,
+                    contactNumber: team.contactNumber,
+                    team_members: JSON.stringify(team.members),
+                });
+
+                if (signUpResponse.data?.user) {
+                    console.log("Registration successful!");
+                    alert("Registration successful! Please sign in to access your team dashboard.");
+
+                    setTeam({
+                        teamName: "",
+                        teamEmail: "",
+                        contactNumber: "",
+                        password: "",
+                        confirmPassword: "",
+                        members: Array(3).fill({ id: "", name: "", studentId: "" }),
+                    });
+
+                    setCurrentMemberIndex(0);
+
+                    setErrors({});
+
+                } else if (signUpResponse.error) {
+                    throw new Error(signUpResponse.error.message || "Registration failed");
+                }
+            } catch (error: any) {
+                console.error("Registration error:", error);
+                alert(`Registration failed: ${error.message}`);
+            } finally {
+                setIsSubmitting(false);
+            }
+
         }
     };
 
@@ -252,7 +296,7 @@ export default function RegistrationForm() {
                 <div>
                     <label className="block text-gray-300 text-xs text-left mb-1 tracking-wide">
                         TEAM PASSWORD
-                    </label>
+                    </labefemovate25l>
                     <input
                         type="password"
                         className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-pink-600 transition-colors text-sm font-inter"
@@ -293,13 +337,13 @@ export default function RegistrationForm() {
                     )}
                 </div>
 
-                {/* Team Members Section */}
+                {/* Team Members Section - Updated for 3-4 members */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
                         <div className="text-purple-200 px-3 py-1 rounded-md font-semibold tracking-wide text-sm">
                             TEAM MEMBERS
                         </div>
-                        {team.members.length < 5 && (
+                        {team.members.length < 4 && ( // Show add button only when less than 4 members
                             <button
                                 type="button"
                                 onClick={addMember}
@@ -311,7 +355,7 @@ export default function RegistrationForm() {
                     </div>
 
                     <p className="text-gray-400 text-xs text-center">
-                        MAXIMUM 5 MEMBERS ALLOWED
+                        MINIMUM 3, MAXIMUM 4 MEMBERS ALLOWED
                     </p>
 
                     {/* Member Navigation */}
@@ -407,28 +451,31 @@ export default function RegistrationForm() {
                             </div>
                         </div>
 
-                        {/* Remove Member Button */}
-                        {team.members.length > 4 &&
-                            currentMemberIndex === team.members.length - 1 && (
-                                <button
-                                    type="button"
-                                    onClick={removeMember}
-                                    className="mt-2 text-red-400 hover:text-red-300 text-xs"
-                                >
-                                    Remove Member
-                                </button>
-                            )}
+                        {/* Updated Remove Member Button - only show for the 4th member */}
+                        {team.members.length > 3 && currentMemberIndex === team.members.length - 1 && (
+                            <button
+                                type="button"
+                                onClick={removeMember}
+                                className="mt-2 text-red-400 hover:text-red-300 text-xs"
+                            >
+                                Remove Member
+                            </button>
+                        )}
+
                     </div>
                 </div>
 
-                {/* Submit Button */}
+                {/* Submit Button remains unchanged */}
                 <button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-pink-600 to-pink-900 hover:from-pink-800 hover:to-pink-900 text-white py-2 px-4 rounded-md font-semibold tracking-wide transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-pink-600 text-sm cursor-pointer"
+                    disabled={isSubmitting}
+                    className={`w-full bg-gradient-to-r from-pink-600 to-pink-900 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:from-pink-800 hover:to-pink-900'
+                        } text-white py-2 px-4 rounded-md font-semibold tracking-wide transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-pink-600 text-sm cursor-pointer`}
                 >
-                    REGISTER TEAM
+                    {isSubmitting ? "REGISTERING..." : "REGISTER TEAM"}
                 </button>
             </form>
         </div>
     );
 }
+
