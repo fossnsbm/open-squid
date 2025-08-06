@@ -52,13 +52,13 @@ const FAQSection = () => {
                             <div className="flex justify-between items-center gap-2">
                                 <h4
                                     className={`${show ? "text-primary" : "text-white"
-                                        } md:text-2xl transition-all duration-300 `}
+                                        } md:text-2xl transition-all duration-300 uppercase `}
                                 >
                                     {question}
                                 </h4>
                             </div>
                             {show && (
-                                <p className="text-white text-left mb-2 p-4 rounded-2xl font-bold bg-white-700/50">
+                                <p className="text-white text-left mb-2 p-4 rounded-2xl font-bold bg-white-700/50 uppercase">
                                     {answer}
                                 </p>
                             )}
