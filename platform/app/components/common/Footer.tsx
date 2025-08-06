@@ -5,7 +5,7 @@ import React from "react";
 
 export default function Footer() {
     return (
-        <footer className="relative text-white font-inter mt-2 overflow-hidden flex flex-col items-center">
+        <footer className="relative text-white font-inter mt-2 overflow-hidden flex flex-col items-center z-50">
             <div className="w-full flex md:justify-between px-10 items-center justify-center">
               
 

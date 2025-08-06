@@ -40,9 +40,11 @@ export default function RootLayout({
                     <div className="min-h-screen snap-y snap-mandatory overflow-y-auto scroll-smooth">
                         <Header />
                         {children}
+                        <Footer />
                     </div>
+                    
                 </main>
-                <Footer />
+                
             </body>
         </html>
     );
