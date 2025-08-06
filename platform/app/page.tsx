@@ -1,7 +1,8 @@
 import Header from "./components/common/Header";
 import RippleGrid from "./components/landing/RippleGrid";
 import HeroSection from "./components/landing/HeroSection";
-import AboutUsSection from "./components/landing/AboutUsSection";
+import PhaseSection from "./components/landing/PhaseSection";
+import RegisterSection from "./components/landing/RegisterSection";
 
 export default function Home() {
     return (
@@ -11,7 +12,9 @@ export default function Home() {
             </div>
             <Header />
             <HeroSection />
-            <AboutUsSection />
+            <PhaseSection />
+            <RegisterSection />
+
         </>
     );
 }
