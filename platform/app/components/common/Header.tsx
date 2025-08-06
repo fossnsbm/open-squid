@@ -28,7 +28,7 @@ const Header: React.FC = () => {
                 <div className="hidden md:block">
                     <div className="flex items-baseline space-x-8 font-inter">
                         <a
-                            href="/"
+                            href="/#hero"
                             className="text-white hover:text-pink-700 py-2 text-md font-light transition-colors duration-200"
                         >
                             Home

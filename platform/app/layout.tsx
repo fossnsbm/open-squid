@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import localFont from "next/font/local";
 
 import "./globals.css";
+import Header from "./components/common/Header";
 
 const inter = Inter({
     display: "swap",
@@ -33,9 +34,12 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={`${inter.variable} ${squid.variable} antialiased`}>
-                <div className="min-h-screen">
-                    {children}
-                </div>
+                <main className="fixed top-0 left-0 w-dvw h-dvh z-10 flex flex-col">
+                    <div className="min-h-screen snap-y snap-mandatory overflow-y-auto scroll-smooth">
+                        <Header />
+                        {children}
+                    </div>
+                </main>
             </body>
         </html>
     );
