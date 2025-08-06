@@ -38,7 +38,7 @@ export default function Footer() {
                 <div className="w-[940px] h-[1px] bg-pink-600" />
             </div>
 
-            <div className="flex gap-12 mt-6 mb-8 ">
+            <div className="flex gap-12 mt-6 mb-8 items-center ">
                 <div className="relative w-[50px] h-[22px] md:w-[99px] md:h-[44px]">
                    <Image
                     src="/nsbm-logo.svg"
