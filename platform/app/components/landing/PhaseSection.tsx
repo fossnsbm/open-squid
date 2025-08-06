@@ -21,7 +21,7 @@ const PhaseSection: React.FC = () => {
         {
             imageSrc: "./games/circle.png",
             altText: "QUIZ SURVIVAL",
-            captionText: "QUIZ SURVIVAL",
+            captionText: "A battle of minds. Fast thinking earns points. Every second counts.",
             overlayContent: (
                 <p className="tilted-card-demo-text font-bold">QUIZ SURVIVAL </p>
             ),
@@ -29,7 +29,7 @@ const PhaseSection: React.FC = () => {
         {
             imageSrc: "./games/square.png",
             altText: "ECHO PROMPT",
-            captionText: "ECHO PROMPT",
+            captionText: "Put your speed and imagination to the test. Type with purpose  your words matter.",
             overlayContent: (
                 <p className="tilted-card-demo-text font-bold">ECHO PROMPT</p>
             ),
@@ -37,7 +37,7 @@ const PhaseSection: React.FC = () => {
         {
             imageSrc: "./games/triangle.png",
             altText: "THE SQUID CLUE",
-            captionText: "THE SQUID CLUE",
+            captionText: "The game starts with a search. What you find will lead the way. Stay sharp.",
             overlayContent: (
                 <p className="tilted-card-demo-text font-bold">THE SQUID CLUE</p>
             ),
