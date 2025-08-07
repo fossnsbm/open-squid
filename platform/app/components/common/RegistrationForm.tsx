@@ -217,8 +217,14 @@ export default function RegistrationForm() {
 
     return (
         <div className="flex items-center justify-center px-4 font-squid">
-            {/* Toast remains the same */}
-            
+            {showToast && (
+                <Toast
+                    message={showToast.message}
+                    type={showToast.type}
+                    onClose={() => setShowToast(null)}
+                />
+            )}
+
             <div className="max-h-[80vh] overflow-y-auto w-full max-w-md lg:max-w-xl">
                 <form
                     className="bg-transparent p-4 rounded-xl border-2 border-pink-800 w-full space-y-3 shadow-lg"
