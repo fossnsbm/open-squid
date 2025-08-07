@@ -10,7 +10,6 @@ export default function RegistrationForm() {
     const [isSubmitting, setIsSubmitting] = useState(false); // Add submission state
 
     type TeamMember = {
-        id: string;
         name: string;
         studentId: string;
     };
@@ -82,7 +81,7 @@ export default function RegistrationForm() {
         if (team.members.length < 4) { // Maximum of 4 members
             setTeam({
                 ...team,
-                members: [...team.members, { id: "", name: "", studentId: "" }],
+                members: [...team.members, { name: "", studentId: "" }],
             });
             setCurrentMemberIndex(team.members.length);
         }
