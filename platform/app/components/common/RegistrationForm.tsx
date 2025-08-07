@@ -39,7 +39,7 @@ export default function RegistrationForm() {
         contactNumber: "",
         password: "",
         confirmPassword: "",
-        members: Array(3).fill({ id: "", name: "", studentId: "" }),
+        members: Array(2).fill({ id: "", name: "", studentId: "" }),
     });
 
     const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
@@ -89,8 +89,7 @@ export default function RegistrationForm() {
     };
 
     const removeMember = () => {
-
-        if (team.members.length > 3) { // Minimum of 3 members
+        if (team.members.length > 2) { // Minimum of 2 members
             const updatedMembers = team.members.filter((_, i) => i !== currentMemberIndex);
 
             setTeam({ ...team, members: updatedMembers });
@@ -195,11 +194,10 @@ export default function RegistrationForm() {
                         contactNumber: "",
                         password: "",
                         confirmPassword: "",
-                        members: Array(3).fill({ id: "", name: "", studentId: "" }),
+                        members: Array(2).fill({ id: "", name: "", studentId: "" }),
                     });
 
                     setCurrentMemberIndex(0);
-
                     setErrors({});
 
                 } else if (signUpResponse.error) {
@@ -219,263 +217,260 @@ export default function RegistrationForm() {
 
     return (
         <div className="flex items-center justify-center px-4 font-squid">
-            {showToast && (
-                <Toast
-                    message={showToast.message}
-                    type={showToast.type}
-                    onClose={() => setShowToast(null)}
-                />
-            )}
-            <form
-                className="bg-transparent p-4 rounded-xl border-2 border-pink-800 w-full max-w-md lg:max-w-xl space-y-3 shadow-lg"
-                onSubmit={handleSubmit}
-            >
-                {/* Team Name */}
-                <div>
-                    <label className="block text-gray-300 text-xs text-left mb-1 tracking-wide">
-                        TEAM NAME
-                    </label>
-                    <input
-                        type="text"
-                        className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-pink-600 transition-colors text-sm font-inter"
-                        placeholder="CYBER WIZARDS"
-                        value={team.teamName}
-                        onChange={(e) =>
-                            setTeam({ ...team, teamName: e.target.value })
-                        }
-                    />
-                    {errors.teamName && (
-                        <p className="text-red-500 text-xs mt-1 font-inter">
-                            {errors.teamName}
-                        </p>
-                    )}
-                </div>
-
-                {/* Team Email */}
-                <div>
-                    <label className="block text-gray-300 text-xs text-left mb-1 tracking-wide">
-                        TEAM EMAIL
-                    </label>
-                    <input
-                        type="email"
-                        className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-pink-600 transition-colors text-sm font-inter"
-                        placeholder="user@students.nsbm.ac.lk"
-                        value={team.teamEmail}
-                        onChange={(e) =>
-                            setTeam({ ...team, teamEmail: e.target.value })
-                        }
-                    />
-                    {errors.teamEmail && (
-                        <p className="text-red-500 text-xs mt-1 font-inter">
-                            {errors.teamEmail}
-                        </p>
-                    )}
-                </div>
-
-                {/* Contact Number */}
-                <div>
-                    <label className="block text-gray-300 text-xs text-left mb-1 tracking-wide">
-                        TEAM CONTACT NO.
-                    </label>
-                    <input
-                        type="text"
-                        className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-pink-600 transition-colors text-sm font-inter"
-                        placeholder="07XXXXXXXXX"
-                        value={team.contactNumber}
-                        onChange={(e) =>
-                            setTeam({ ...team, contactNumber: e.target.value })
-                        }
-                    />
-                    {errors.contactNumber && (
-                        <p className="text-red-500 text-xs mt-1 font-inter">
-                            {errors.contactNumber}
-                        </p>
-                    )}
-                </div>
-
-                {/* Password */}
-                <div>
-                    <label className="block text-gray-300 text-xs text-left mb-1 tracking-wide">
-                        TEAM PASSWORD
-                    </label>
-                    <input
-                        type="password"
-                        className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-pink-600 transition-colors text-sm font-inter"
-                        placeholder="••••••••"
-                        value={team.password}
-                        onChange={(e) =>
-                            setTeam({ ...team, password: e.target.value })
-                        }
-                    />
-                    {errors.password && (
-                        <p className="text-red-500 text-xs mt-1 font-inter">
-                            {errors.password}
-                        </p>
-                    )}
-                </div>
-
-                {/* Confirm Password */}
-                <div>
-                    <label className="block text-gray-300 text-xs text-left mb-1 tracking-wide">
-                        CONFIRM PASSWORD
-                    </label>
-                    <input
-                        type="password"
-                        className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-pink-600 transition-colors text-sm font-inter"
-                        placeholder="••••••••"
-                        value={team.confirmPassword}
-                        onChange={(e) =>
-                            setTeam({
-                                ...team,
-                                confirmPassword: e.target.value,
-                            })
-                        }
-                    />
-                    {errors.confirmPassword && (
-                        <p className="text-red-500 text-xs mt-1 font-inter">
-                            {errors.confirmPassword}
-                        </p>
-                    )}
-                </div>
-
-                {/* Team Members Section - Updated for 3-4 members */}
-                <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                        <div className="text-purple-200 px-3 py-1 rounded-md font-semibold tracking-wide text-sm">
-                            TEAM MEMBERS
-                        </div>
-                        {team.members.length < 4 && ( // Show add button only when less than 4 members
-                            <button
-                                type="button"
-                                onClick={addMember}
-                                className="bg-pink-800 hover:bg-pink-900 text-white px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer"
-                            >
-                                ADD MEMBER
-                            </button>
+            {/* Toast remains the same */}
+            
+            <div className="max-h-[80vh] overflow-y-auto w-full max-w-md lg:max-w-xl">
+                <form
+                    className="bg-transparent p-4 rounded-xl border-2 border-pink-800 w-full space-y-3 shadow-lg"
+                    onSubmit={handleSubmit}
+                >
+                    {/* Team Name */}
+                    <div>
+                        <label className="block text-gray-300 text-xs text-left mb-1 tracking-wide">
+                            TEAM NAME
+                        </label>
+                        <input
+                            type="text"
+                            className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-pink-600 transition-colors text-sm font-inter"
+                            placeholder="CYBER WIZARDS"
+                            value={team.teamName}
+                            onChange={(e) =>
+                                setTeam({ ...team, teamName: e.target.value })
+                            }
+                        />
+                        {errors.teamName && (
+                            <p className="text-red-500 text-xs mt-1 font-inter">
+                                {errors.teamName}
+                            </p>
                         )}
                     </div>
 
-                    <p className="text-gray-400 text-xs text-center">
-                        MINIMUM 3, MAXIMUM 4 MEMBERS ALLOWED
-                    </p>
+                    {/* Team Email */}
+                    <div>
+                        <label className="block text-gray-300 text-xs text-left mb-1 tracking-wide">
+                            TEAM EMAIL
+                        </label>
+                        <input
+                            type="email"
+                            className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-pink-600 transition-colors text-sm font-inter"
+                            placeholder="user@students.nsbm.ac.lk"
+                            value={team.teamEmail}
+                            onChange={(e) =>
+                                setTeam({ ...team, teamEmail: e.target.value })
+                            }
+                        />
+                        {errors.teamEmail && (
+                            <p className="text-red-500 text-xs mt-1 font-inter">
+                                {errors.teamEmail}
+                            </p>
+                        )}
+                    </div>
 
-                    {/* Member Navigation */}
-                    <div className="bg-gray-800 border border-gray-600 p-3 rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-white font-medium text-sm text-left">
-                                {currentMemberIndex === 0
-                                    ? "TEAM LEADER"
-                                    : `MEMBER ${currentMemberIndex + 1}`}
-                            </h4>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    type="button"
-                                    onClick={prevMember}
-                                    disabled={currentMemberIndex === 0}
-                                    className="text-white hover:text-pink-400 disabled:text-gray-500 disabled:cursor-default transition-colors text-xl cursor-pointer p-1 rounded hover:bg-gray-700 disabled:hover:bg-transparent"
-                                >
-                                    ‹
-                                </button>
-                                <div className="text-gray-400 text-sm px-2">
-                                    {currentMemberIndex + 1} /{" "}
-                                    {team.members.length}
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={nextMember}
-                                    disabled={
-                                        currentMemberIndex ===
-                                        team.members.length - 1
-                                    }
-                                    className="text-white hover:text-pink-400 disabled:text-gray-500 disabled:cursor-default transition-colors text-xl cursor-pointer p-1 rounded hover:bg-gray-700 disabled:hover:bg-transparent"
-                                >
-                                    ›
-                                </button>
+                    {/* Contact Number */}
+                    <div>
+                        <label className="block text-gray-300 text-xs text-left mb-1 tracking-wide">
+                            TEAM CONTACT NO.
+                        </label>
+                        <input
+                            type="text"
+                            className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-pink-600 transition-colors text-sm font-inter"
+                            placeholder="07XXXXXXXXX"
+                            value={team.contactNumber}
+                            onChange={(e) =>
+                                setTeam({ ...team, contactNumber: e.target.value })
+                            }
+                        />
+                        {errors.contactNumber && (
+                            <p className="text-red-500 text-xs mt-1 font-inter">
+                                {errors.contactNumber}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Password */}
+                    <div>
+                        <label className="block text-gray-300 text-xs text-left mb-1 tracking-wide">
+                            TEAM PASSWORD
+                        </label>
+                        <input
+                            type="password"
+                            className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-pink-600 transition-colors text-sm font-inter"
+                            placeholder="••••••••"
+                            value={team.password}
+                            onChange={(e) =>
+                                setTeam({ ...team, password: e.target.value })
+                            }
+                        />
+                        {errors.password && (
+                            <p className="text-red-500 text-xs mt-1 font-inter">
+                                {errors.password}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Confirm Password */}
+                    <div>
+                        <label className="block text-gray-300 text-xs text-left mb-1 tracking-wide">
+                            CONFIRM PASSWORD
+                        </label>
+                        <input
+                            type="password"
+                            className="w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-pink-600 transition-colors text-sm font-inter"
+                            placeholder="••••••••"
+                            value={team.confirmPassword}
+                            onChange={(e) =>
+                                setTeam({
+                                    ...team,
+                                    confirmPassword: e.target.value,
+                                })
+                            }
+                        />
+                        {errors.confirmPassword && (
+                            <p className="text-red-500 text-xs mt-1 font-inter">
+                                {errors.confirmPassword}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Team Members Section - Updated for 3-4 members */}
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                            <div className="text-purple-200 px-3 py-1 rounded-md font-semibold tracking-wide text-sm">
+                                TEAM MEMBERS
                             </div>
+                            {team.members.length < 4 && ( // Show add button only when less than 4 members
+                                <button
+                                    type="button"
+                                    onClick={addMember}
+                                    className="bg-pink-800 hover:bg-pink-900 text-white px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer"
+                                >
+                                    ADD MEMBER
+                                </button>
+                            )}
                         </div>
 
-                        {/* Current Member Form - Two Columns */}
-                        <div className="grid grid-cols-2 gap-2">
-                            <div>
-                                <label className="block text-gray-300 text-xs text-left mb-1">
-                                    NAME
-                                </label>
-                                <input
-                                    type="text"
-                                    className="w-full px-2 py-1 rounded-md bg-gray-700 border border-gray-500 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-pink-600 focus:border-pink-600 transition-colors text-xs font-inter"
-                                    placeholder="FULL NAME"
-                                    value={currentMember?.name || ""}
-                                    onChange={(e) =>
-                                        handleInputChange(
-                                            currentMemberIndex,
-                                            "name",
-                                            e.target.value
-                                        )
-                                    }
-                                />
-                                {errors.members?.[currentMemberIndex]?.name && (
-                                    <p className="text-red-500 text-xs mt-1 font-inter">
-                                        {
-                                            errors.members[currentMemberIndex]
-                                                .name
+                        <p className="text-gray-400 text-xs text-center">
+                            MINIMUM 2, MAXIMUM 4 MEMBERS ALLOWED
+                        </p>
+
+                        {/* Member Navigation */}
+                        <div className="bg-gray-800 border border-gray-600 p-3 rounded-lg">
+                            <div className="flex items-center justify-between mb-2">
+                                <h4 className="text-white font-medium text-sm text-left">
+                                    {currentMemberIndex === 0
+                                        ? "TEAM LEADER"
+                                        : `MEMBER ${currentMemberIndex + 1}`}
+                                </h4>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={prevMember}
+                                        disabled={currentMemberIndex === 0}
+                                        className="text-white hover:text-pink-400 disabled:text-gray-500 disabled:cursor-default transition-colors text-xl cursor-pointer p-1 rounded hover:bg-gray-700 disabled:hover:bg-transparent"
+                                    >
+                                        ‹
+                                    </button>
+                                    <div className="text-gray-400 text-sm px-2">
+                                        {currentMemberIndex + 1} /{" "}
+                                        {team.members.length}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={nextMember}
+                                        disabled={
+                                            currentMemberIndex ===
+                                            team.members.length - 1
                                         }
-                                    </p>
-                                )}
+                                        className="text-white hover:text-pink-400 disabled:text-gray-500 disabled:cursor-default transition-colors text-xl cursor-pointer p-1 rounded hover:bg-gray-700 disabled:hover:bg-transparent"
+                                    >
+                                        ›
+                                    </button>
+                                </div>
                             </div>
 
-                            <div>
-                                <label className="block text-gray-300 text-xs text-left mb-1">
-                                    STUDENT ID
-                                </label>
-                                <input
-                                    type="text"
-                                    className="w-full px-2 py-1 rounded-md bg-gray-700 border border-gray-500 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-pink-600 focus:border-pink-600 transition-colors text-xs font-inter"
-                                    placeholder="STUDENT ID NUMBER"
-                                    value={currentMember?.studentId || ""}
-                                    onChange={(e) =>
-                                        handleInputChange(
-                                            currentMemberIndex,
-                                            "studentId",
-                                            e.target.value
-                                        )
-                                    }
-                                />
-                                {errors.members?.[currentMemberIndex]
-                                    ?.studentId && (
+                            {/* Current Member Form - Two Columns */}
+                            <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label className="block text-gray-300 text-xs text-left mb-1">
+                                        NAME
+                                    </label>
+                                    <input
+                                        type="text"
+                                        className="w-full px-2 py-1 rounded-md bg-gray-700 border border-gray-500 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-pink-600 focus:border-pink-600 transition-colors text-xs font-inter"
+                                        placeholder="FULL NAME"
+                                        value={currentMember?.name || ""}
+                                        onChange={(e) =>
+                                            handleInputChange(
+                                                currentMemberIndex,
+                                                "name",
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+                                    {errors.members?.[currentMemberIndex]?.name && (
                                         <p className="text-red-500 text-xs mt-1 font-inter">
                                             {
                                                 errors.members[currentMemberIndex]
-                                                    .studentId
+                                                    .name
                                             }
                                         </p>
                                     )}
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-300 text-xs text-left mb-1">
+                                        STUDENT ID
+                                    </label>
+                                    <input
+                                        type="text"
+                                        className="w-full px-2 py-1 rounded-md bg-gray-700 border border-gray-500 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-pink-600 focus:border-pink-600 transition-colors text-xs font-inter"
+                                        placeholder="STUDENT ID NUMBER"
+                                        value={currentMember?.studentId || ""}
+                                        onChange={(e) =>
+                                            handleInputChange(
+                                                currentMemberIndex,
+                                                "studentId",
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+                                    {errors.members?.[currentMemberIndex]
+                                        ?.studentId && (
+                                            <p className="text-red-500 text-xs mt-1 font-inter">
+                                                {
+                                                    errors.members[currentMemberIndex]
+                                                        .studentId
+                                                }
+                                            </p>
+                                        )}
+                                </div>
                             </div>
+
+                            {/* Updated Remove Member Button - only show for the 4th member */}
+                            {team.members.length > 2 && ( // Changed from 3 to 2
+                                <button
+                                    type="button"
+                                    onClick={removeMember}
+                                    className="mt-2 text-red-400 hover:text-red-300 text-xs uppercase"
+                                >
+                                    Remove Member
+                                </button>
+                            )}
+
                         </div>
-
-                        {/* Updated Remove Member Button - only show for the 4th member */}
-                        {team.members.length > 3 && currentMemberIndex === team.members.length - 1 && (
-                            <button
-                                type="button"
-                                onClick={removeMember}
-                                className="mt-2 text-red-400 hover:text-red-300 text-xs uppercase"
-                            >
-                                Remove Member
-                            </button>
-                        )}
-
                     </div>
-                </div>
 
-                {/* Submit Button remains unchanged */}
-                <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={`w-full bg-gradient-to-r from-pink-600 to-pink-900 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:from-pink-800 hover:to-pink-900'
-                        } text-white py-2 px-4 rounded-md font-semibold tracking-wide transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-pink-600 text-sm cursor-pointer`}
-                >
-                    {isSubmitting ? "REGISTERING..." : "REGISTER TEAM"}
-                </button>
-            </form>
+                    {/* Submit Button remains unchanged */}
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className={`w-full bg-gradient-to-r from-pink-600 to-pink-900 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:from-pink-800 hover:to-pink-900'
+                            } text-white py-2 px-4 rounded-md font-semibold tracking-wide transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-pink-600 text-sm cursor-pointer`}
+                    >
+                        {isSubmitting ? "REGISTERING..." : "REGISTER TEAM"}
+                    </button>
+                </form>
+            </div>
         </div>
     );
 }

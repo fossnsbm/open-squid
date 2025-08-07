@@ -36,6 +36,9 @@ const FAQSection = () => {
     return (
         <Section id="faq">
             <div className="h-screen flex flex-col items-center justify-center gap-3 font-kharkiv px-5 mb-20 mt-5 font-squid py-20">
+                <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-8 font-squid uppercase">
+                    FAQ
+                </h2>
                 {qSet.map(({ id, question, answer, show }, index) => (
                     <div
                         key={id}

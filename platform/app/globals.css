@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-    --background: #ffffff;
-    --foreground: #171717;
+    --background: #0a0a0a;
+    --foreground: #ededed;
     --card-background: #0B0005;
 }
 
@@ -14,10 +14,9 @@
     --color-cardbackground: var(--card-background);
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
     :root {
-        --background: #0a0a0a;
-        --foreground: #ededed;
+        color-scheme: dark !important;
     }
 }
 

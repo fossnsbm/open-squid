@@ -41,7 +41,7 @@ const AboutUsSection: React.FC = () => {
                         </p>
                     </div>
                 </div>
-                <div className="absolute left-4 bottom-25 md:left-0 md:bottom-20 lg:left-70 lg:bottom-12 pointer-events-auto z-20">
+                <div className="hidden absolute left-4 bottom-25 md:block md:left-0 md:bottom-20 lg:block lg:left-28 lg:bottom-8 pointer-events-auto z-20">
                     <div className="w-32 md:w-40 lg:w-64">
                         <Image
                             src="/card.png"
