@@ -27,7 +27,7 @@ const questions = [
     {
         id: 6,
         question: "Can I join alone?",
-        answer: "No, this is a group-only event. You must participate as a team. Each team must have [2-4 members].",
+        answer: "No, this is a group-only event. You must participate as a team. Each team must have [3-4 members].",
     },
     {
         id: 7,
