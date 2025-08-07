@@ -3,6 +3,11 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/app/db";
 
 export const auth = betterAuth({
+    trustedOrigins: [
+        "https://open-squid.netlify.app",
+        "https://opensquid.fossnsbm.org",
+        "http://localhost:3000"
+    ],
     database: drizzleAdapter(db, {
         provider: "pg",
         usePlural: true,
