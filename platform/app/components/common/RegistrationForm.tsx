@@ -39,7 +39,7 @@ export default function RegistrationForm() {
         contactNumber: "",
         password: "",
         confirmPassword: "",
-        members: Array(3).fill({ id: "", name: "", studentId: "" }),
+        members: Array(2).fill({ id: "", name: "", studentId: "" }),
     });
 
     const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
@@ -89,8 +89,7 @@ export default function RegistrationForm() {
     };
 
     const removeMember = () => {
-
-        if (team.members.length > 3) { // Minimum of 3 members
+        if (team.members.length > 2) { // Minimum of 2 members
             const updatedMembers = team.members.filter((_, i) => i !== currentMemberIndex);
 
             setTeam({ ...team, members: updatedMembers });
@@ -195,11 +194,10 @@ export default function RegistrationForm() {
                         contactNumber: "",
                         password: "",
                         confirmPassword: "",
-                        members: Array(3).fill({ id: "", name: "", studentId: "" }),
+                        members: Array(2).fill({ id: "", name: "", studentId: "" }),
                     });
 
                     setCurrentMemberIndex(0);
-
                     setErrors({});
 
                 } else if (signUpResponse.error) {
@@ -352,7 +350,7 @@ export default function RegistrationForm() {
                         </div>
 
                         <p className="text-gray-400 text-xs text-center">
-                            MINIMUM 3, MAXIMUM 4 MEMBERS ALLOWED
+                            MINIMUM 2, MAXIMUM 4 MEMBERS ALLOWED
                         </p>
 
                         {/* Member Navigation */}
@@ -449,7 +447,7 @@ export default function RegistrationForm() {
                             </div>
 
                             {/* Updated Remove Member Button - only show for the 4th member */}
-                            {team.members.length > 3 && currentMemberIndex === team.members.length - 1 && (
+                            {team.members.length > 2 && ( // Changed from 3 to 2
                                 <button
                                     type="button"
                                     onClick={removeMember}
