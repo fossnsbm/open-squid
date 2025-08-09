@@ -21,6 +21,9 @@ export const teams = pgTable("teams", {
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
   role: text("role").default("user").notNull(),
+  banned: boolean("banned"),
+  banReason: text("ban_reason"),
+  banExpires: timestamp("ban_expires"),
   contactNumber: text("contact_number").notNull(),
   team_members: text("team_members").notNull(),
 });
@@ -36,6 +39,7 @@ export const team_sessions = pgTable("team_sessions", {
   userId: text("user_id")
     .notNull()
     .references(() => teams.id, { onDelete: "cascade" }),
+  impersonatedBy: text("impersonated_by"),
 });
 
 export const accounts = pgTable("accounts", {
