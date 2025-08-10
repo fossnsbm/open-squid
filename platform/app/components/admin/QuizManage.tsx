@@ -671,7 +671,7 @@ export default function QuizManage() {
                                                                 optIndex ===
                                                                 question.correct_answer
                                                                     ? "bg-green-100 text-green-800"
-                                                                    : "bg-gray-100"
+                                                                    : "bg-gray-600"
                                                             }`}
                                                         >
                                                             {option}{" "}

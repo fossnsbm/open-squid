@@ -1,8 +1,8 @@
 // db/queries.ts
 import { db } from './index'
-import { questions } from './schema'
+import { questions ,quizSessions} from './schema'
 import { nanoid } from 'nanoid'
-import { eq } from "drizzle-orm";
+import { eq ,sql,desc} from "drizzle-orm";
 
 export async function createQuestion(
   question: string,
@@ -68,3 +68,211 @@ export async function deleteQuestion(id: string) {
     throw new Error('Failed to delete question')
   }
 }
+
+
+
+    //1
+export async function createQuizSession(
+  title: string,
+  timePerQuestion: number = 10
+) {
+  try {
+    // Get total questions count
+    const totalQuestionsResult = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(questions)
+    
+    const totalQuestions = totalQuestionsResult[0]?.count || 0
+
+    const sessionData = {
+      id: nanoid(),
+      title,
+      status: 'pending' as const,
+      currentQuestionIndex: 0,
+      timePerQuestion,
+      totalQuestions,
+      startedAt: null,
+      endedAt: null,
+      createdAt: new Date(),
+    }
+
+    const [newSession] = await db
+      .insert(quizSessions)
+      .values(sessionData)
+      .returning()
+
+    return newSession
+  } catch (error) {
+    console.error('Database error creating quiz session:', error)
+    throw new Error('Failed to create quiz session in database')
+  }
+}
+
+// Get all quiz sessions
+export async function getQuizSessions() {
+  try {
+    return await db
+      .select()
+      .from(quizSessions)
+      .orderBy(desc(quizSessions.createdAt))
+  } catch (error) {
+    console.error('Database error fetching quiz sessions:', error)
+    throw new Error('Failed to fetch quiz sessions')
+  }
+}
+
+export async function getQuizSessionById(id: string) {
+  try {
+    const [session] = await db
+      .select()
+      .from(quizSessions)
+      .where(eq(quizSessions.id, id))
+    
+    return session
+  } catch (error) {
+    console.error('Database error fetching quiz session:', error)
+    throw new Error('Failed to fetch quiz session')
+  }
+}
+
+export async function deleteQuizSession(id: string) {
+  try {
+    const [deletedSession] = await db
+      .delete(quizSessions)
+      .where(eq(quizSessions.id, id))
+      .returning()
+    
+    return deletedSession
+  } catch (error) {
+    console.error('Database error deleting quiz session:', error)
+    throw new Error('Failed to delete quiz session')
+  }
+}
+
+// Update quiz session status and/or current question index
+export async function updateQuizSession(
+  id: string,
+  updates: {
+    status?: string;
+    currentQuestionIndex?: number;
+    startedAt?: Date | null;
+    endedAt?: Date | null;
+  }
+) {
+  try {
+    const [updatedSession] = await db
+      .update(quizSessions)
+      .set(updates)
+      .where(eq(quizSessions.id, id))
+      .returning()
+    
+    return updatedSession
+  } catch (error) {
+    console.error('Database error updating quiz session:', error)
+    throw new Error('Failed to update quiz session')
+  }
+}
+     
+   //2
+// Update only status
+export async function updateQuizSessionStatus(
+  id: string, 
+  status: string, 
+  currentQuestionIndex?: number
+) {
+  try {
+    const updateData: any = { status }
+    
+    // Set timestamps based on status
+    if (status === 'live') {
+      updateData.startedAt = new Date()
+    } else if (status === 'completed') {
+      updateData.endedAt = new Date()
+    }
+
+    if (typeof currentQuestionIndex === 'number') {
+      updateData.currentQuestionIndex = currentQuestionIndex
+    }
+
+    const [updatedSession] = await db
+      .update(quizSessions)
+      .set(updateData)
+      .where(eq(quizSessions.id, id))
+      .returning()
+    
+    return updatedSession
+  } catch (error) {
+    console.error('Database error updating quiz session status:', error)
+    throw new Error('Failed to update quiz session status')
+  }
+}
+
+// Get quiz sessions by status
+export async function getQuizSessionsByStatus(status: string) {
+  try {
+    return await db
+      .select()
+      .from(quizSessions)
+      .where(eq(quizSessions.status, status))
+      .orderBy(desc(quizSessions.createdAt))
+  } catch (error) {
+    console.error('Database error fetching quiz sessions by status:', error)
+    throw new Error('Failed to fetch quiz sessions by status')
+  }
+}
+
+// Update current question index
+export async function updateCurrentQuestionIndex(id: string, questionIndex: number) {
+  try {
+    const [updatedSession] = await db
+      .update(quizSessions)
+      .set({ currentQuestionIndex: questionIndex })
+      .where(eq(quizSessions.id, id))
+      .returning()
+    
+    return updatedSession
+  } catch (error) {
+    console.error('Database error updating question index:', error)
+    throw new Error('Failed to update question index')
+  }
+}
+
+// Complete quiz session
+export async function completeQuizSession(id: string) {
+  try {
+    const [completedSession] = await db
+      .update(quizSessions)
+      .set({ 
+        status: 'completed',
+        endedAt: new Date()
+      })
+      .where(eq(quizSessions.id, id))
+      .returning()
+    
+    return completedSession
+  } catch (error) {
+    console.error('Database error completing quiz session:', error)
+    throw new Error('Failed to complete quiz session')
+  }
+}
+
+// Start quiz session
+export async function startQuizSession(id: string) {
+  try {
+    const [startedSession] = await db
+      .update(quizSessions)
+      .set({ 
+        status: 'live',
+        startedAt: new Date(),
+        currentQuestionIndex: 0
+      })
+      .where(eq(quizSessions.id, id))
+      .returning()
+    
+    return startedSession
+  } catch (error) {
+    console.error('Database error starting quiz session:', error)
+    throw new Error('Failed to start quiz session')
+  }
+}
+

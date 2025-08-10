@@ -4,6 +4,7 @@ import {
   timestamp,
   boolean,
   integer,
+  varchar,
   jsonb,
 } from "drizzle-orm/pg-core";
 
@@ -87,4 +88,19 @@ export const questions = pgTable("questions", {
     () => /* @__PURE__ */ new Date(),
   ),
 });
+
+
+export const quizSessions = pgTable('quiz_sessions', {
+  id: text('id').primaryKey(),
+  title: varchar('title', { length: 255 }),
+  status: varchar('status', { length: 20 }).default('pending'), 
+  currentQuestionIndex: integer('current_question_index').default(0),
+  timePerQuestion: integer('time_per_question').default(10),
+  totalQuestions: integer('total_questions'),
+  startedAt: timestamp('started_at'),
+  endedAt: timestamp('ended_at'),
+  createdAt: timestamp("created_at").$defaultFn(
+    () => /* @__PURE__ */ new Date(),
+  ),
+})
 
