@@ -4,7 +4,9 @@ import {
   timestamp,
   boolean,
   integer,
+  jsonb,
 } from "drizzle-orm/pg-core";
+
 
 export const teams = pgTable("teams", {
   id: text("id").primaryKey(),
@@ -72,3 +74,17 @@ export const verifications = pgTable("verifications", {
     () => /* @__PURE__ */ new Date(),
   ),
 });
+
+export const questions = pgTable("questions", {
+  id: text("id").primaryKey(),
+  question: text("question").notNull(),
+  options: jsonb("options").notNull().$type<string[]>(),
+  correctAnswer: integer("correct_answer").notNull(),
+ createdAt: timestamp("created_at").$defaultFn(
+    () => /* @__PURE__ */ new Date(),
+  ),
+  updatedAt: timestamp("updated_at").$defaultFn(
+    () => /* @__PURE__ */ new Date(),
+  ),
+});
+
