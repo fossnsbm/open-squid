@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut, authClient } from "@/lib/auth-client";
+import { useTeamsData } from "../hooks/useTeamsData";
 import TeamsList from "@/app/components/admin/TeamsList";
 
 export interface Team {
@@ -24,47 +25,7 @@ interface Session {
 
 function AdminContent({ session }: { session: Session }) {
     const router = useRouter();
-    const [teams, setTeams] = useState<Team[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        async function loadTeams() {
-            try {
-                const { data: users, error: usersError } = await authClient.admin.listUsers({
-                    query: {
-                        sortBy: "createdAt",
-                        sortDirection: "desc",
-                        filterField: "role",
-                        filterValue: "admin",
-                        filterOperator: "ne",
-                    }
-                });
-
-                if (usersError) {
-                    throw new Error(usersError.message || "Failed to fetch users");
-                }
-
-                if (users) {
-                    const formattedTeams = users.users.map(user => ({
-                        id: user.id,
-                        name: user.name || "No Name",
-                        email: user.email || "No Email",
-                        createdAt: user.createdAt
-                    }));
-
-                    setTeams(formattedTeams);
-                }
-            } catch (error: any) {
-                console.error("Error fetching teams:", error);
-                setError(error.message || "Failed to load teams data");
-            } finally {
-                setIsLoading(false);
-            }
-        }
-
-        loadTeams();
-    }, []);
+    const { teams, isLoading, error } = useTeamsData();
 
     const handleLogout = async () => {
         await signOut();
@@ -100,7 +61,6 @@ function AdminContent({ session }: { session: Session }) {
                     </button>
                 </div>
 
-                {/* Use the TeamsList component */}
                 <TeamsList teams={teams} />
             </div>
         </div>
