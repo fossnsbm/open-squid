@@ -1,5 +1,4 @@
 "use client";
-import { a } from "framer-motion/client";
 import React, { useEffect, useState } from "react";
 
 export type TeamMarks = {
@@ -36,112 +35,85 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
     }, [teams, viewLimit]);
 
     const handleViewMore = (more: number) => {
-        if (more < 0 &&(viewLimit + more  < 3)){
-            return
+        if (more < 0 && viewLimit + more < 3) {
+            return;
         }
-        if(viewLimit> teams.length && more > 0){
-            return
+        if (viewLimit > teams.length && more > 0) {
+            return;
         }
         setViewLimit((prv) => prv + more);
     };
 
     return (
-        <div className="w-full border-b-2 p-4 border-pink-800 ">
-            <h2 className="w-full text-2xl font-bold mb-4 font-squid text-pink-400 text-center">
-                LEADERBOARD overview
+        <section className="mb-8">
+            <h2 className="text-2xl font-bold mb-5 font-squid text-pink-400 text-center uppercase">
+                LEADERBOARD
             </h2>
 
-            <table className="w-full text-left text-sm table-auto border-separate border-spacing-y-2">
-                <thead className="border-b border-pink-800 text-2xl">
-                    <tr>
-                        <th className="py-3 px-2 font-squid text-pink-300 uppercase">
+            <div className="overflow-hidden rounded-md border border-pink-800 shadow-lg">
+                {/* Table Header */}
+                <div className="bg-gray-700 border-b border-pink-800/70">
+                    <div className="grid grid-cols-12 items-center py-4 px-6">
+                        <div className="col-span-2 text-pink-400 font-squid text-lg">
                             RANK
-                        </th>
-                        <th className="py-3 px-2 font-squid text-pink-300 uppercase">
+                        </div>
+                        <div className="col-span-8 text-pink-400 font-squid text-lg">
                             TEAM
-                        </th>
-                        <th className="py-3 px-2 font-squid text-pink-300 uppercase hidden md:table-cell">
-                            PUZZLE
-                        </th>
-                        <th className="py-3 px-2 font-squid text-pink-300 uppercase hidden md:table-cell">
-                            QUESTIONNAIRE
-                        </th>
-                        <th className="py-3 px-2 font-squid text-pink-300 uppercase hidden md:table-cell">
-                            AI
-                        </th>
-                        <th className="py-3 px-2 font-squid text-pink-300 uppercase">
-                            Total
-                        </th>
-                    </tr>
-                </thead>
+                        </div>
+                        <div className="col-span-2 text-pink-400 font-squid text-lg text-right">
+                            SCORE
+                        </div>
+                    </div>
+                </div>
 
-                <tbody>
+                {/* Table Body */}
+                <div className="bg-gray-900 divide-y divide-pink-800/30">
                     {sortedTeams.length === 0 ? (
-                        <tr>
-                            <td
-                                colSpan={6}
-                                className="py-4 px-4 text-center text-gray-400"
-                            >
-                                No teams registered yet
-                            </td>
-                        </tr>
+                        <div className="py-5 px-6 text-center text-gray-400 font-squid">
+                            No teams registered yet
+                        </div>
                     ) : (
                         sortedTeams.map((team, index) => {
-                            const puzzle = team.puzzle ?? 0;
-                            const que = team.que ?? 0;
-                            const ai = team.ai ?? 0;
                             const total = team.total ?? 0;
 
                             return (
-                                <tr
+                                <div
                                     key={team.id}
-                                    className={`border-b border-gray-700 hover:bg-gray-700 text-2xl font-bold
-                                        ${
-                                            index == 0
-                                                ? "bg-pink-600 "
-                                                : index == 1
-                                                ? "bg-pink-700 "
-                                                : index == 2
-                                                ? "bg-pink-800 "
-                                                : "bg-pink-900 font-normal"
-                                        }`}
+                                    className="grid grid-cols-12 items-center py-5 px-6 hover:bg-gray-800/60 transition-colors"
                                 >
-                                    <td className="py-3 px-4">{index + 1}</td>
-                                    <td className="py-3 px-4">{team.name}</td>
-                                    <td className="py-3 px-4 hidden md:table-cell">
-                                        {puzzle || "_"}
-                                    </td>
-                                    <td className="py-3 px-4 hidden md:table-cell">
-                                        {que || "_"}
-                                    </td>
-                                    <td className="py-3 px-4 hidden md:table-cell">
-                                        {ai || "_"}
-                                    </td>
-                                    <td className="py-3 px-4">
+                                    <div className="col-span-2">
+                                        <span className="font-bold font-squid text-xl text-pink-400">
+                                            {index + 1}
+                                        </span>
+                                    </div>
+                                    <div className="col-span-8 font-bold text-white">
+                                        {team.name}
+                                    </div>
+                                    <div className="col-span-2 font-bold text-right text-pink-400">
                                         {total || "_"}
-                                    </td>
-                                </tr>
+                                    </div>
+                                </div>
                             );
                         })
                     )}
-                </tbody>
-            </table>
-            <div className="w-full items-center justify-between flex">
+                </div>
+            </div>
+            <div className="w-full items-center justify-between flex mt-4">
                 <button
-                    className="cursor-pointer border-b hover:text-pink-400 px-4 "
-                    onClick={()=>handleViewMore(2)}
+                    className="px-4 py-2 text-sm font-squid text-pink-300 hover:text-pink-400 hover:underline transition-all"
+                    onClick={() => handleViewMore(2)}
                 >
-                    view more
+                    VIEW MORE
                 </button>
-            
+
                 <button
-                    className="cursor-pointer border-b hover:text-pink-400 px-4 "
-                    onClick={()=>handleViewMore(-2)}
+                    className="px-4 py-2 text-sm font-squid text-pink-300 hover:text-pink-400 hover:underline transition-all"
+                    onClick={() => handleViewMore(-2)}
                 >
-                    view less
-                </button></div>
-            
-        </div>
+                    VIEW LESS
+                </button>
+            </div>
+        </section>
     );
 };
 

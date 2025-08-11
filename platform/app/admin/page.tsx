@@ -8,8 +8,6 @@ import TeamsList from "@/app/components/admin/TeamsList";
 import { teamMarks } from "./data";
 import LeaderboardTable from "../components/admin/Leaderboard";
 import ChallengeCard from "../components/admin/ChallengeCard";
-import TeamsDataList from "../components/admin/TeamDataList";
-import SummaryCard from "../components/admin/SummaryCard";
 
 
 export interface Team {
@@ -59,91 +57,104 @@ function AdminContent({ session }: { session: Session }) {
     }
 
     return (
-        <div className="snap-end min-h-screen flex flex-col justify-center bg-gray-900 p-6 text-white pt-18">
-            <div className=" mx-auto flex flex-col gap-6">
-                <div className="flex flex-col gap-6 mb-6">
-                    <div className="flex justify-between items-center mb-8 gap-4">
-                        <h1 className="text-3xl font-bold text-pink-500 font-squid">
-                            ADMIN DASHBOARD
-                        </h1>
-                        <button
-                            onClick={handleLogout}
-                            className="px-4 py-2 bg-pink-700 hover:bg-pink-800 rounded-md transition-colors text-white font-squid"
-                        >
-                            LOGOUT
-                        </button>
-                    </div>
-                    <LeaderboardTable teams={teamMarks} limit={5} />
-                </div>
-                <h2 className="w-full text-2xl font-bold mb-4 font-squid text-pink-400 text-center uppercase">
-                    TEAMS details
-                </h2>
-                <div className="grid grid-col md:grid-row gap-6 grid-cols-1 md:grid-cols-2 mb-8">
-                    <SummaryCard />
-                    <div className="flex flex-col justify-around bg-gray-800 rounded-lg p-6 shadow-xl border border-pink-900 w-full">
-
-                        <button
-                            onClick={handleClosePopup}
-                            className=" bg-gray-800 cursor-pointer rounded-lg p-6 shadow-xl border border-pink-400 w-full hover:shadow-pink-900"
-                        >
-                            <h2 className="w-full text-2xl font-bold font-squid text-pink-400 uppercase hover:border-b-2">
-                                show teams Details
-                            </h2>
-                        </button>
-                        <button
-                            onClick={handleClosePopup}
-                            className=" bg-gray-800 cursor-pointer rounded-lg p-6 shadow-xl border border-pink-400 w-full hover:shadow-pink-900"
-                        >
-                            <h2 className="w-full text-2xl font-bold font-squid text-pink-400 uppercase hover:border-b-2">
-                                show Online teams
-                            </h2>
-                        </button>
-                    </div>
-                </div>
-
-                <h2 className="w-full text-2xl font-bold mb-4 font-squid text-pink-400 text-center">
-                    CHALLENGES
-                </h2>
-                <div className="grid grid-col md:grid-row gap-6 grid-cols-1 md:grid-cols-3 mb-8">
-                    <ChallengeCard
-                        title="PUZZLE"
-                        link="/data"
-                        imgUrl="/games/circle.png"
-                    />
-                    <ChallengeCard
-                        title="QUESTIONNAIRE"
-                        link=""
-                        imgUrl="/games/triangle.png"
-                    />
-                    <ChallengeCard
-                        title="AI_PROMPT"
-                        link=""
-                        imgUrl="/games/square.png"
-                    />
-                </div>
-
-                {/* <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold text-pink-500 font-squid">ADMIN DASHBOARD</h1>
+        <div className="min-h-screen flex flex-col bg-gray-900 text-white">
+            {/* Fixed Header */}
+            <header className="sticky top-0 z-40 bg-gray-800 shadow-md py-4 px-6 border-b border-pink-800">
+                <div className="max-w-5xl mx-auto flex justify-between items-center">
+                    <h1 className="text-2xl md:text-3xl font-bold text-pink-500 font-squid">
+                        ADMIN DASHBOARD
+                    </h1>
                     <button
                         onClick={handleLogout}
                         className="px-4 py-2 bg-pink-700 hover:bg-pink-800 rounded-md transition-colors text-white font-squid"
                     >
                         LOGOUT
                     </button>
-                </div> */}
+                </div>
+            </header>
 
-                {/* <TeamsList teams={teams} /> */}
-            </div>
+            {/* Main Content */}
+            <main className="flex-grow p-6 pt-8">
+                <div className="max-w-5xl mx-auto flex flex-col gap-6">
+                    {/* Leaderboard Section */}
+                    <section className="mb-8">
+                        <LeaderboardTable teams={teamMarks} limit={5} />
+                    </section>
+
+                    {/* Teams Details Section */}
+                    <section className="mb-8">
+                        <h2 className="text-2xl font-bold mb-4 font-squid text-pink-400 text-center uppercase">
+                            TEAMS DETAILS
+                        </h2>
+                        <div className="mx-auto max-w-lg">
+                            <div className="bg-gray-800 rounded-lg p-6 shadow-xl border border-pink-900">
+                                <div className="space-y-4">
+                                    <div className="flex flex-col">
+                                        <span className="text-gray-400 text-sm mb-1">Registered Teams</span>
+                                        <div onClick={() => setShowTeamsPopup(true)} className="cursor-pointer group">
+                                            <span className="font-squid text-2xl text-pink-400 group-hover:text-pink-300 group-hover:underline">
+                                                {teams?.length || 0} TEAMS
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col">
+                                        <span className="text-gray-400 text-sm mb-1">Online Teams</span>
+                                        <span className="font-squid text-2xl text-pink-400">
+                                            {teams?.length || 0} TEAMS
+                                        </span>
+                                    </div>
+
+                                    <div className="mt-4 pt-4 border-t border-pink-900/30">
+                                        <button
+                                            onClick={() => setShowTeamsPopup(true)}
+                                            className="w-full py-3 bg-pink-900/30 hover:bg-pink-900/50 rounded-md transition-colors text-pink-400 font-squid"
+                                        >
+                                            VIEW DETAILS
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Challenges Section */}
+                    <section className="mb-8">
+                        <h2 className="text-2xl font-bold mb-4 font-squid text-pink-400 text-center uppercase">
+                            CHALLENGES
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <ChallengeCard
+                                title="PUZZLE"
+                                link="/data"
+                                imgUrl="/games/circle.png"
+                            />
+                            <ChallengeCard
+                                title="QUESTIONNAIRE"
+                                link=""
+                                imgUrl="/games/triangle.png"
+                            />
+                            <ChallengeCard
+                                title="AI_PROMPT"
+                                link=""
+                                imgUrl="/games/square.png"
+                            />
+                        </div>
+                    </section>
+                </div>
+            </main>
+
+            {/* Teams Popup */}
             {showTeamsPopup && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50">
-                    <div className="bg-gray-900/10 rounded-lg p-6  max-w-4xl  overflow-auto relative">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/80 backdrop-blur-sm">
+                    <div className="bg-gray-900 rounded-lg p-6 max-w-3xl max-h-[80vh] overflow-auto relative border-2 border-pink-800">
                         <button
-                            className="absolute top-4 right-4 text-pink-400 hover:text-pink-100 hover:bg-pink-800 text-xl font-bold bg-gray-800 w-12 h-12 border rounded-full "
+                            className="absolute top-4 right-4 text-pink-400 hover:text-pink-100 hover:bg-pink-800 text-xl font-bold bg-gray-800 w-12 h-12 border rounded-full flex items-center justify-center"
                             onClick={handleClosePopup}
                         >
                             ✕
                         </button>
-                        <TeamsDataList teams={teams} />
+                        <TeamsList teams={teams} />
                     </div>
                 </div>
             )}
