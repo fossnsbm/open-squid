@@ -6,6 +6,8 @@ import {
   integer,
   varchar,
   jsonb,
+  uuid,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 
 
@@ -63,6 +65,7 @@ export const accounts = pgTable("accounts", {
   updatedAt: timestamp("updated_at").notNull(),
 });
 
+
 export const verifications = pgTable("verifications", {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),
@@ -103,4 +106,29 @@ export const quizSessions = pgTable('quiz_sessions', {
     () => /* @__PURE__ */ new Date(),
   ),
 })
+
+
+export const users = pgTable('users', {
+  id: text('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }).unique(),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+})
+
+
+export const quizParticipants = pgTable('quiz_participants', {
+  id: text('id').primaryKey(),
+  quizSessionId: text('quiz_session_id')
+   .references(() => quizSessions.id, { onDelete: 'cascade' })
+   .notNull(),
+  userId: text('user_id')
+   .references(() => users.id, { onDelete: 'cascade' })
+   .notNull(),
+  score: integer('score').default(0),
+  totalQuestionsAnswered: integer('total_questions_answered').default(0),
+  joinedAt: timestamp('joined_at').defaultNow(),
+})
+
+
 

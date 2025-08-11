@@ -19,7 +19,6 @@ interface Question {
     question: string;
     options: string[];
     correct_answer: number;
-    
 }
 
 interface User {
@@ -80,7 +79,6 @@ export default function QuizManage() {
         options: ["", "", "", ""],
         correctAnswer: 0,
     });
-
 
     // Toast function
     const showToastMessage = (message: string, type: "success" | "error") => {
@@ -155,10 +153,12 @@ export default function QuizManage() {
         try {
             const response = await fetch(
                 `/api/quiz-sessions/${sessionId}/participants`
+                // `/api/users`
             );
             if (response.ok) {
                 const data = await response.json();
                 setParticipants(data);
+                console.log("Loaded participants:", data);
             }
         } catch (error) {
             console.error("Error loading participants:", error);
@@ -207,6 +207,29 @@ export default function QuizManage() {
 
                 if (updateResponse.ok) {
                     console.log("Session marked as live");
+
+
+                    //add users as participants to quiz
+
+                    await Promise.all(
+                        users.map((user) =>
+                            fetch(
+                                `/api/quiz-sessions/${session.id}/participants`,
+                                {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({ userId: user.id }),
+                                }
+                            ).catch((error) =>
+                                console.error(
+                                    `Failed to add user ${user.id}`,
+                                    error
+                                )
+                            )
+                        )
+                    );
 
                     setQuizState({
                         isLive: true,
@@ -337,7 +360,6 @@ export default function QuizManage() {
                     question: newQuestion.question,
                     options: newQuestion.options,
                     correctAnswer: newQuestion.correctAnswer,
-                  
                 }),
             });
 
@@ -348,7 +370,6 @@ export default function QuizManage() {
                     question: "",
                     options: ["", "", "", ""],
                     correctAnswer: 0,
-                   
                 });
 
                 showToastMessage("Question added successfully!", "success");
@@ -408,314 +429,327 @@ export default function QuizManage() {
             )}
 
             <div className="max-w-6xl mx-auto px-4 ">
-                  <div className="bg-transparent border border-pink-800 rounded-xl shadow-lg overflow-hidden">
-                              {/* Header */}
-            <div className="bg-pink-800 text-white px-6 py-4">
-                <h2 className="text-xl font-bold text-center">Quiz Management Dashboard</h2>
-                <p className="text-pink-100 text-center text-sm mt-1">Control your live quiz and manage questions</p>
-            </div>
-                <div className="grid gap-6 md:grid-cols-2 mb-6 p-4">
-                    {/* Quiz Control */}
-                    <div className="bg-gray-700 rounded-lg border-2 border-gray-600 p-4 shadow-md ">
-                        <div className="p-6 border-b">
-                            <h3 className="text-lg font-semibold text-pink-600">
-                                Quiz Control
-                            </h3>
-                            <p className="text-white mt-1 up">
-                                Manage live quiz sessions
-                            </p>
-                        </div>
-                        <div className="p-6 space-y-4">
-                            <div className="flex items-center gap-4">
-
-                                <button
-                                    onClick={startQuiz}
-                                    disabled={
-                                        quizState.isLive ||
-                                        questions.length === 0
-                                    }
-                                    className="flex items-center gap-2 bg-green-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                                >
-                                    <Play className="h-4 w-4" />
-                                    Start Quiz
-                                </button>
-                                <button
-                                    onClick={stopQuiz}
-                                    disabled={!quizState.isLive}
-                                    className="flex items-center gap-2 bg-red-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                                >
-                                    <Square className="h-4 w-4" />
-                                    Stop Quiz
-                                </button>
-                            </div>
-
-                            {questions.length === 0 && (
-                                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                                    <p className="text-yellow-800 text-sm">
-                                        ⚠️ Add questions before starting the
-                                        quiz
-                                    </p>
-                                </div>
-                            )}
-
-                            <div className="space-y-2 text-sm">
-                                <div className="flex justify-between">
-                                    <span className="text-white">
-                                        Status:
-                                    </span>
-                                    <span
-                                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                            quizState.isLive
-                                                ? "bg-green-100 text-green-800"
-                                                : "bg-gray-100 text-gray-800"
-                                        }`}
-                                    >
-                                        {quizState.isLive ? "LIVE" : "OFFLINE"}
-                                    </span>
-                                </div>
-                                {quizState.isLive && (
-                                    <div className="flex justify-between">
-                                        <span className="text-white">
-                                            Current Question:
-                                        </span>
-                                        <span className="font-medium">
-                                            {quizState.currentQuestionIndex + 1}{" "}
-                                            of {questions.length}
-                                        </span>
-                                    </div>
-                                )}
-                                <div className="flex justify-between">
-                                    <span className="text-white">
-                                        Participants:
-                                    </span>
-                                    <span className="font-medium">
-                                        {participants.length}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Add New Question */}
-                    <div className="bg-gray-700 rounded-lg borde-2 border-gray-600 p-4 shadow-md ">
-                        <div className="p-6 border-b">
-                            <h3 className="text-lg font-semibold text-pink-600">
-                                Add New Question
-                            </h3>
-                            <p className="text-white mt-1">
-                                Create questions for the quiz
-                            </p>
-                        </div>
-                        <div className="p-6 space-y-4">
-                            <div>
-                                <label
-                                    htmlFor="question"
-                                    className="block text-sm font-medium text-white mb-1"
-                                >
-                                    Question *
-                                </label>
-                                <textarea
-                                    id="question"
-                                    value={newQuestion.question}
-                                    onChange={(e) =>
-                                        setNewQuestion((prev) => ({
-                                            ...prev,
-                                            question: e.target.value,
-                                        }))
-                                    }
-                                    placeholder="Enter your question..."
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    rows={3}
-                                />
-                            </div>
-
-                           
-
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700">
-                                    Answer Options *
-                                </label>
-                                {newQuestion.options.map((option, index) => (
-                                    <div
-                                        key={index}
-                                        className="flex items-center gap-2"
-                                    >
-                                        <input
-                                            type="text"
-                                            value={option}
-                                            onChange={(e) => {
-                                                const newOptions = [
-                                                    ...newQuestion.options,
-                                                ];
-                                                newOptions[index] =
-                                                    e.target.value;
-                                                setNewQuestion((prev) => ({
-                                                    ...prev,
-                                                    options: newOptions,
-                                                }));
-                                            }}
-                                            placeholder={`Option ${index + 1}`}
-                                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        />
-                                        <label className="flex items-center gap-1 text-sm text-gray-600">
-                                            <input
-                                                type="radio"
-                                                name="correctAnswer"
-                                                checked={
-                                                    newQuestion.correctAnswer ===
-                                                    index
-                                                }
-                                                onChange={() =>
-                                                    setNewQuestion((prev) => ({
-                                                        ...prev,
-                                                        correctAnswer: index,
-                                                    }))
-                                                }
-                                                className="w-4 h-4 text-pink-600"
-                                            />
-                                            Correct
-                                        </label>
-                                    </div>
-                                ))}
-                                <p className="text-xs text-gray-500">
-                                    Select the correct answer option
-                                </p>
-                            </div>
-
-                            <button
-                                onClick={addQuestion}
-                                className="w-full bg-pink-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-pink-700 transition-colors flex items-center justify-center gap-2"
-                            >
-                                <Plus className="h-4 w-4" />
-                                Add Question
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Participants List */}
-                {quizState.isLive && participants.length > 0 && (
-                    <div className="bg-white rounded-lg shadow-sm mb-6">
-                        <div className="p-6 border-b">
-                            <h3 className="text-lg font-semibold">
-                                Live Participants ({participants.length})
-                            </h3>
-                        </div>
-                        <div className="p-6">
-                            <div className="grid gap-3">
-                                {participants
-                                    .sort((a, b) => b.score - a.score)
-                                    .map((participant, index) => (
-                                        <div
-                                            key={participant.id}
-                                            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <span className="font-semibold text-gray-600">
-                                                    #{index + 1}
-                                                </span>
-                                                <span className="font-medium">
-                                                    {participant.user_name}
-                                                </span>
-                                            </div>
-                                            <div className="text-right">
-                                                <div className="font-bold text-blue-600">
-                                                    {participant.score} pts
-                                                </div>
-                                                <div className="text-xs text-gray-500">
-                                                    {
-                                                        participant.total_questions_answered
-                                                    }{" "}
-                                                    answered
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Question Bank */}
-                <div className="bg-gray-700 rounded-lg  shadow-md p-4 m-4 ">
-                    <div className="p-6 border-b">
-                        <h3 className="text-lg font-semibold">
-                            Question Bank ({questions.length} questions)
-                        </h3>
-                        <p className="text-gray-400 mt-1">
-                            Manage your quiz questions
+                <div className="bg-transparent border border-pink-800 rounded-xl shadow-lg overflow-hidden">
+                    {/* Header */}
+                    <div className="bg-pink-800 text-white px-6 py-4">
+                        <h2 className="text-xl font-bold text-center">
+                            Quiz Management Dashboard
+                        </h2>
+                        <p className="text-pink-100 text-center text-sm mt-1">
+                            Control your live quiz and manage questions
                         </p>
                     </div>
-                    <div className="p-6">
-                        <div className="space-y-4">
-                            {questions.map((question, index) => (
-                                <div
-                                    key={question.id}
-                                    className="border rounded-lg p-4"
-                                >
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <h4 className="font-medium">
-                                                    {index + 1}.{" "}
-                                                    {question.question}
-                                                </h4>
-                                                
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-2 text-sm">
-                                                {question.options.map(
-                                                    (option, optIndex) => (
-                                                        <div
-                                                            key={optIndex}
-                                                            className={`p-2 rounded ${
-                                                                optIndex ===
-                                                                question.correct_answer
-                                                                    ? "bg-green-100 text-green-800"
-                                                                    : "bg-gray-600"
-                                                            }`}
-                                                        >
-                                                            {option}{" "}
-                                                            {optIndex ===
-                                                                question.correct_answer &&
-                                                                "✓"}
-                                                        </div>
-                                                    )
-                                                )}
-                                            </div>
-                                        </div>
-                                        <button
-                                            onClick={() =>
-                                                deleteQuestion(question.id)
-                                            }
-                                            disabled={quizState.isLive}
-                                            className="ml-4 p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                            title={
+                    <div className="grid gap-6 md:grid-cols-2 mb-6 p-4">
+                        {/* Quiz Control */}
+                        <div className="bg-gray-700 rounded-lg border-2 border-gray-600 p-4 shadow-md ">
+                            <div className="p-6 border-b">
+                                <h3 className="text-lg font-semibold text-pink-600">
+                                    Quiz Control
+                                </h3>
+                                <p className="text-white mt-1 up">
+                                    Manage live quiz sessions
+                                </p>
+                            </div>
+                            <div className="p-6 space-y-4">
+                                <div className="flex items-center gap-4">
+                                    <button
+                                        onClick={startQuiz}
+                                        disabled={
+                                            quizState.isLive ||
+                                            questions.length === 0
+                                        }
+                                        className="flex items-center gap-2 bg-green-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        <Play className="h-4 w-4" />
+                                        Start Quiz
+                                    </button>
+                                    <button
+                                        onClick={stopQuiz}
+                                        disabled={!quizState.isLive}
+                                        className="flex items-center gap-2 bg-red-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        <Square className="h-4 w-4" />
+                                        Stop Quiz
+                                    </button>
+                                </div>
+
+                                {questions.length === 0 && (
+                                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                                        <p className="text-yellow-800 text-sm">
+                                            ⚠️ Add questions before starting the
+                                            quiz
+                                        </p>
+                                    </div>
+                                )}
+
+                                <div className="space-y-2 text-sm">
+                                    <div className="flex justify-between">
+                                        <span className="text-white">
+                                            Status:
+                                        </span>
+                                        <span
+                                            className={`px-2 py-1 rounded-full text-xs font-medium ${
                                                 quizState.isLive
-                                                    ? "Cannot delete during live quiz"
-                                                    : "Delete question"
-                                            }
+                                                    ? "bg-green-100 text-green-800"
+                                                    : "bg-gray-100 text-gray-800"
+                                            }`}
                                         >
-                                            <Trash2 className="h-4 w-4" />
-                                        </button>
+                                            {quizState.isLive
+                                                ? "LIVE"
+                                                : "OFFLINE"}
+                                        </span>
+                                    </div>
+                                    {quizState.isLive && (
+                                        <div className="flex justify-between">
+                                            <span className="text-white">
+                                                Current Question:
+                                            </span>
+                                            <span className="font-medium">
+                                                {quizState.currentQuestionIndex +
+                                                    1}{" "}
+                                                of {questions.length}
+                                            </span>
+                                        </div>
+                                    )}
+                                    <div className="flex justify-between">
+                                        <span className="text-white">
+                                            Participants:
+                                        </span>
+                                        <span className="font-medium">
+                                            {participants.length}
+                                        </span>
                                     </div>
                                 </div>
-                            ))}
-                            {questions.length === 0 && (
-                                <div className="text-center py-8 text-gray-500">
-                                    <Database className="h-12 w-12 mx-auto mb-3 text-gray-400" />
-                                    <p className="text-lg font-medium mb-1">
-                                        No questions yet
-                                    </p>
-                                    <p className="text-sm">
-                                        Create your first question using the
-                                        form above
+                            </div>
+                        </div>
+
+                        {/* Add New Question */}
+                        <div className="bg-gray-700 rounded-lg borde-2 border-gray-600 p-4 shadow-md ">
+                            <div className="p-6 border-b">
+                                <h3 className="text-lg font-semibold text-pink-600">
+                                    Add New Question
+                                </h3>
+                                <p className="text-white mt-1">
+                                    Create questions for the quiz
+                                </p>
+                            </div>
+                            <div className="p-6 space-y-4">
+                                <div>
+                                    <label
+                                        htmlFor="question"
+                                        className="block text-sm font-medium text-white mb-1"
+                                    >
+                                        Question *
+                                    </label>
+                                    <textarea
+                                        id="question"
+                                        value={newQuestion.question}
+                                        onChange={(e) =>
+                                            setNewQuestion((prev) => ({
+                                                ...prev,
+                                                question: e.target.value,
+                                            }))
+                                        }
+                                        placeholder="Enter your question..."
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        rows={3}
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Answer Options *
+                                    </label>
+                                    {newQuestion.options.map(
+                                        (option, index) => (
+                                            <div
+                                                key={index}
+                                                className="flex items-center gap-2"
+                                            >
+                                                <input
+                                                    type="text"
+                                                    value={option}
+                                                    onChange={(e) => {
+                                                        const newOptions = [
+                                                            ...newQuestion.options,
+                                                        ];
+                                                        newOptions[index] =
+                                                            e.target.value;
+                                                        setNewQuestion(
+                                                            (prev) => ({
+                                                                ...prev,
+                                                                options:
+                                                                    newOptions,
+                                                            })
+                                                        );
+                                                    }}
+                                                    placeholder={`Option ${
+                                                        index + 1
+                                                    }`}
+                                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                />
+                                                <label className="flex items-center gap-1 text-sm text-gray-600">
+                                                    <input
+                                                        type="radio"
+                                                        name="correctAnswer"
+                                                        checked={
+                                                            newQuestion.correctAnswer ===
+                                                            index
+                                                        }
+                                                        onChange={() =>
+                                                            setNewQuestion(
+                                                                (prev) => ({
+                                                                    ...prev,
+                                                                    correctAnswer:
+                                                                        index,
+                                                                })
+                                                            )
+                                                        }
+                                                        className="w-4 h-4 text-pink-600"
+                                                    />
+                                                    Correct
+                                                </label>
+                                            </div>
+                                        )
+                                    )}
+                                    <p className="text-xs text-gray-500">
+                                        Select the correct answer option
                                     </p>
                                 </div>
-                            )}
+
+                                <button
+                                    onClick={addQuestion}
+                                    className="w-full bg-pink-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-pink-700 transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    Add Question
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Participants List */}
+                    {quizState.isLive && participants.length > 0 && (
+                        <div className="bg-white rounded-lg shadow-sm mb-6">
+                            <div className="p-6 border-b">
+                                <h3 className="text-lg font-semibold">
+                                    Live Participants ({participants.length})
+                                </h3>
+                            </div>
+                            <div className="p-6">
+                                <div className="grid gap-3">
+                                    {participants
+                                        .sort((a, b) => b.score - a.score)
+                                        .map((participant, index) => (
+                                            <div
+                                                key={participant.id}
+                                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <span className="font-semibold text-gray-600">
+                                                        #{index + 1}
+                                                    </span>
+                                                    <span className="font-medium">
+                                                        {participant.user_name}
+                                                    </span>
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className="font-bold text-blue-600">
+                                                        {participant.score} pts
+                                                    </div>
+                                                    <div className="text-xs text-gray-500">
+                                                        {
+                                                            participant.total_questions_answered
+                                                        }{" "}
+                                                        answered
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Question Bank */}
+                    <div className="bg-gray-700 rounded-lg  shadow-md p-4 m-4 ">
+                        <div className="p-6 border-b">
+                            <h3 className="text-lg font-semibold">
+                                Question Bank ({questions.length} questions)
+                            </h3>
+                            <p className="text-gray-400 mt-1">
+                                Manage your quiz questions
+                            </p>
+                        </div>
+                        <div className="p-6">
+                            <div className="space-y-4">
+                                {questions.map((question, index) => (
+                                    <div
+                                        key={question.id}
+                                        className="border rounded-lg p-4"
+                                    >
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <h4 className="font-medium">
+                                                        {index + 1}.{" "}
+                                                        {question.question}
+                                                    </h4>
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                                    {question.options.map(
+                                                        (option, optIndex) => (
+                                                            <div
+                                                                key={optIndex}
+                                                                className={`p-2 rounded ${
+                                                                    optIndex ===
+                                                                    question.correct_answer
+                                                                        ? "bg-green-100 text-green-800"
+                                                                        : "bg-gray-600"
+                                                                }`}
+                                                            >
+                                                                {option}{" "}
+                                                                {optIndex ===
+                                                                    question.correct_answer &&
+                                                                    "✓"}
+                                                            </div>
+                                                        )
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() =>
+                                                    deleteQuestion(question.id)
+                                                }
+                                                disabled={quizState.isLive}
+                                                className="ml-4 p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                title={
+                                                    quizState.isLive
+                                                        ? "Cannot delete during live quiz"
+                                                        : "Delete question"
+                                                }
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                                {questions.length === 0 && (
+                                    <div className="text-center py-8 text-gray-500">
+                                        <Database className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+                                        <p className="text-lg font-medium mb-1">
+                                            No questions yet
+                                        </p>
+                                        <p className="text-sm">
+                                            Create your first question using the
+                                            form above
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
             </div>
         </div>
     );

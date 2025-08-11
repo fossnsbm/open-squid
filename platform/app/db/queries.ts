@@ -1,6 +1,6 @@
 // db/queries.ts
 import { db } from './index'
-import { questions ,quizSessions} from './schema'
+import { questions ,quizSessions ,quizParticipants, users} from './schema'
 import { nanoid } from 'nanoid'
 import { eq ,sql,desc} from "drizzle-orm";
 
@@ -276,3 +276,59 @@ export async function startQuizSession(id: string) {
   }
 }
 
+
+
+export async function addQuizParticipant(
+  quizSessionId: string,
+  userId: string
+) {
+  try {
+    const participantData = {
+      id: nanoid(),
+      quizSessionId,
+      userId,
+      score: 0,
+      totalQuestionsAnswered: 0,
+      joinedAt: new Date(),
+    }
+
+    const [newParticipant] = await db
+      .insert(quizParticipants)
+      .values(participantData)
+      .returning()
+
+    return newParticipant
+  } catch (error) {
+    console.error('Database error adding quiz participant:', error)
+    throw new Error('Failed to add quiz participant')
+  }
+}
+
+export async function getQuizParticipants(quizSessionId: string) {
+  try {
+    return await db
+      .select()
+      .from(quizParticipants)
+      .where(eq(quizParticipants.quizSessionId, quizSessionId))
+      .orderBy(desc(quizParticipants.joinedAt))
+  } catch (error) {
+    console.error('Database error fetching quiz participants:', error)
+    throw new Error('Failed to fetch quiz participants')
+  }
+}
+
+export async function getUsers() {
+  try{
+    return await db
+        .select()
+         .from(users)
+         .orderBy(desc(users.createdAt))
+        
+  }catch(error){
+
+    console.error('Database error fetching users :', error)
+    throw new Error('Failed to fetch users ')
+  }
+}
+
+ 
