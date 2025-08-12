@@ -4,7 +4,9 @@ import {
   timestamp,
   boolean,
   integer,
+  jsonb,
 } from "drizzle-orm/pg-core";
+
 
 export const teams = pgTable("teams", {
   id: text("id").primaryKey(),
@@ -21,6 +23,9 @@ export const teams = pgTable("teams", {
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
   role: text("role").default("user").notNull(),
+  banned: boolean("banned"),
+  banReason: text("ban_reason"),
+  banExpires: timestamp("ban_expires"),
   contactNumber: text("contact_number").notNull(),
   team_members: text("team_members").notNull(),
 });
@@ -36,6 +41,7 @@ export const team_sessions = pgTable("team_sessions", {
   userId: text("user_id")
     .notNull()
     .references(() => teams.id, { onDelete: "cascade" }),
+  impersonatedBy: text("impersonated_by"),
 });
 
 export const accounts = pgTable("accounts", {
@@ -68,3 +74,17 @@ export const verifications = pgTable("verifications", {
     () => /* @__PURE__ */ new Date(),
   ),
 });
+
+export const questions = pgTable("questions", {
+  id: text("id").primaryKey(),
+  question: text("question").notNull(),
+  options: jsonb("options").notNull().$type<string[]>(),
+  correctAnswer: integer("correct_answer").notNull(),
+ createdAt: timestamp("created_at").$defaultFn(
+    () => /* @__PURE__ */ new Date(),
+  ),
+  updatedAt: timestamp("updated_at").$defaultFn(
+    () => /* @__PURE__ */ new Date(),
+  ),
+});
+

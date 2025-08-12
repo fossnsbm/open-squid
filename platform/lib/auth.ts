@@ -1,6 +1,8 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/app/db";
+import { admin } from "better-auth/plugins";
+import { nextCookies } from "better-auth/next-js";
 
 export const auth = betterAuth({
     trustedOrigins: [
@@ -38,8 +40,12 @@ export const auth = betterAuth({
     },
     session: {
         modelName: "team_session",
-    }
+    },
+    plugins: [
+        admin(),
+        nextCookies(),
+    ]
 });
 
 
-type Session = typeof auth.$Infer.Session
+export type Session = typeof auth.$Infer.Session
