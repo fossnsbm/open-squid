@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { authClient } from "@/lib/auth-client";
 import { Team, TeamMember } from "@/app/admin/page";
 
-// Define an interface for the user data returned by the API
 interface UserResponse {
     id: string;
     name?: string;

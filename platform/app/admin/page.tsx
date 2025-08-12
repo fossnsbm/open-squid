@@ -6,7 +6,7 @@ import { useSession, signOut, authClient } from "@/lib/auth-client";
 import { useTeamsData } from "../hooks/useTeamsData";
 import TeamsList from "@/app/components/admin/TeamsList";
 import { teamMarks } from "./data";
-import LeaderboardTable from "../components/admin/Leaderboard";
+// import LeaderboardTable from "../components/admin/Leaderboard";
 import ChallengeCard from "../components/admin/ChallengeCard";
 
 
@@ -89,9 +89,9 @@ function AdminContent({ session }: { session: Session }) {
             <main className="flex-grow p-6 pt-8">
                 <div className="max-w-5xl mx-auto flex flex-col gap-6">
                     {/* Leaderboard Section */}
-                    <section className="mb-8">
-                        <LeaderboardTable teams={teamMarks} limit={5} />
-                    </section>
+                    {/* <section className="mb-8"> */}
+                    {/*     <LeaderboardTable teams={teamMarks} limit={5} /> */}
+                    {/* </section> */}
 
                     {/* Teams Details Section */}
                     <section className="mb-8">
@@ -127,17 +127,17 @@ function AdminContent({ session }: { session: Session }) {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <ChallengeCard
                                 title="PUZZLE"
-                                link="/data"
+                                link="#"
                                 imgUrl="/games/circle.png"
                             />
                             <ChallengeCard
                                 title="QUESTIONNAIRE"
-                                link=""
+                                link="#"
                                 imgUrl="/games/triangle.png"
                             />
                             <ChallengeCard
                                 title="AI_PROMPT"
-                                link=""
+                                link="#"
                                 imgUrl="/games/square.png"
                             />
                         </div>
