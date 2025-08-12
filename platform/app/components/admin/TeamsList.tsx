@@ -8,22 +8,20 @@ interface TeamsListProps {
 }
 
 export default function TeamsList({ teams }: TeamsListProps) {
-    const [expandedTeamIds, setExpandedTeamIds] = useState<string[]>([]);
+    const [expandedTeamId, setExpandedTeamId] = useState<string | null>(null);
 
     function toggleTeamExpansion(teamId: string) {
-        setExpandedTeamIds(prev =>
-            prev.includes(teamId)
-                ? prev.filter(id => id !== teamId)
-                : [...prev, teamId]
+        setExpandedTeamId(prev =>
+            prev === teamId ? null : teamId
         );
     }
 
     function isTeamExpanded(teamId: string) {
-        return expandedTeamIds.includes(teamId);
+        return expandedTeamId === teamId;
     }
 
     return (
-        <div className="bg-gray-800 rounded-lg p-6 shadow-xl border border-pink-900">
+        <>
             <h2 className="text-2xl font-bold mb-4 font-squid text-pink-400">REGISTERED TEAMS</h2>
 
             <div className="overflow-x-auto">
@@ -116,6 +114,6 @@ export default function TeamsList({ teams }: TeamsListProps) {
 
                 </table>
             </div>
-        </div>
+        </>
     );
 }

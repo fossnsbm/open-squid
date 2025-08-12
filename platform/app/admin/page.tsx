@@ -98,35 +98,24 @@ function AdminContent({ session }: { session: Session }) {
                         <h2 className="text-2xl font-bold mb-4 font-squid text-pink-400 text-center uppercase">
                             TEAMS DETAILS
                         </h2>
-                        <div className="mx-auto max-w-lg">
-                            <div className="bg-gray-800 rounded-lg p-6 shadow-xl border border-pink-900">
-                                <div className="space-y-4">
-                                    <div className="flex flex-col">
-                                        <span className="text-gray-400 text-sm mb-1">Registered Teams</span>
-                                        <div onClick={() => setShowTeamsPopup(true)} className="cursor-pointer group">
-                                            <span className="font-squid text-2xl text-pink-400 group-hover:text-pink-300 group-hover:underline">
-                                                {teams?.length || 0} TEAMS
-                                            </span>
-                                        </div>
-                                    </div>
+                        <div className="bg-gray-800 rounded-lg p-6 shadow-xl border border-pink-900">
+                            {/* Team Stats Summary */}
+                            <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="bg-gray-900 p-4 rounded-md border border-pink-800/50">
+                                    <span className="text-gray-400 text-sm mb-1 block">Registered Teams</span>
+                                    <span className="font-squid text-2xl text-pink-400">
+                                        {teams?.length || 0} TEAMS
+                                    </span>
+                                </div>
 
-                                    <div className="flex flex-col">
-                                        <span className="text-gray-400 text-sm mb-1">Online Teams</span>
-                                        <span className="font-squid text-2xl text-pink-400">
-                                            {teams?.length || 0} TEAMS
-                                        </span>
-                                    </div>
-
-                                    <div className="mt-4 pt-4 border-t border-pink-900/30">
-                                        <button
-                                            onClick={() => setShowTeamsPopup(true)}
-                                            className="w-full py-3 bg-pink-900/30 hover:bg-pink-900/50 rounded-md transition-colors text-pink-400 font-squid"
-                                        >
-                                            VIEW DETAILS
-                                        </button>
-                                    </div>
+                                <div className="bg-gray-900 p-4 rounded-md border border-pink-800/50">
+                                    <span className="text-gray-400 text-sm mb-1 block">Online Teams</span>
+                                    <span className="font-squid text-2xl text-pink-400">
+                                        {teams?.filter(t => t.online)?.length || 0} TEAMS
+                                    </span>
                                 </div>
                             </div>
+                            <TeamsList teams={teams} />
                         </div>
                     </section>
 
@@ -154,23 +143,25 @@ function AdminContent({ session }: { session: Session }) {
                         </div>
                     </section>
                 </div>
-            </main>
+            </main >
 
             {/* Teams Popup */}
-            {showTeamsPopup && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/80 backdrop-blur-sm">
-                    <div className="bg-gray-900 rounded-lg p-6 max-w-3xl max-h-[80vh] overflow-auto relative border-2 border-pink-800">
-                        <button
-                            className="absolute top-4 right-4 text-pink-400 hover:text-pink-100 hover:bg-pink-800 text-xl font-bold bg-gray-800 w-12 h-12 border rounded-full flex items-center justify-center"
-                            onClick={handleClosePopup}
-                        >
-                            ✕
-                        </button>
-                        <TeamsList teams={teams} />
+            {
+                showTeamsPopup && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/80 backdrop-blur-sm">
+                        <div className="bg-gray-900 rounded-lg p-6 max-w-3xl max-h-[80vh] overflow-auto relative border-2 border-pink-800">
+                            <button
+                                className="absolute top-4 right-4 text-pink-400 hover:text-pink-100 hover:bg-pink-800 text-xl font-bold bg-gray-800 w-12 h-12 border rounded-full flex items-center justify-center"
+                                onClick={handleClosePopup}
+                            >
+                                ✕
+                            </button>
+                            <TeamsList teams={teams} />
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }
 export default function AdminDashboard() {
