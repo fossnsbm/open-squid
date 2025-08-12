@@ -10,12 +10,24 @@ import LeaderboardTable from "../components/admin/Leaderboard";
 import ChallengeCard from "../components/admin/ChallengeCard";
 
 
+export interface TeamMember {
+    name: string;
+    email?: string;
+    studentId?: string;
+}
+
 export interface Team {
     id: string;
     name: string;
     email: string;
+    contactNumber?: string;
     role?: string;
     createdAt: Date;
+    online?: boolean;
+    members?: TeamMember[];
+    puzzleProgress?: string;
+    queProgress?: string;
+    aiProgress?: string;
 }
 
 interface Session {
