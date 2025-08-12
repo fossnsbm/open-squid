@@ -1,6 +1,6 @@
 // db/queries.ts
 import { db } from './index'
-import { questions } from './schema'
+import { questions, teams } from './schema'
 import { nanoid } from 'nanoid'
 import { eq } from "drizzle-orm";
 
@@ -66,5 +66,14 @@ export async function deleteQuestion(id: string) {
   } catch (error) {
     console.error('Database error deleting question:', error)
     throw new Error('Failed to delete question')
+  }
+}
+
+export async function getAllTeams() {
+  try {
+    return await db.select().from(teams);
+  } catch (error) {
+    console.error('Database error fetching teams:', error);
+    throw new Error('Failed to fetch teams');
   }
 }

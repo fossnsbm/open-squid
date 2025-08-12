@@ -1,6 +1,15 @@
 import { useState, useEffect } from "react";
 import { authClient } from "@/lib/auth-client";
-import { Team } from "@/app/admin/page";
+import { Team, TeamMember } from "@/app/admin/page";
+
+interface UserResponse {
+    id: string;
+    name?: string;
+    email?: string;
+    contactNumber?: string;
+    createdAt: string | Date;
+    team_members?: string;
+}
 
 export function useTeamsData() {
     const [teams, setTeams] = useState<Team[]>([]);
@@ -25,13 +34,27 @@ export function useTeamsData() {
                 }
 
                 if (users) {
-                    const formattedTeams = users.users.map(user => ({
-                        id: user.id,
-                        name: user.name || "No Name",
-                        email: user.email || "No Email",
-                        createdAt: user.createdAt
-                    }));
+                    const formattedTeams = users.users.map((user: UserResponse) => {
+                        let parsedMembers: TeamMember[] = [];
+                        if (user.team_members) {
+                            try {
+                                parsedMembers = JSON.parse(user.team_members);
+                            } catch (e) {
+                                console.error(`Failed to parse team members for team ${user.id}:`, e);
+                            }
+                        }
 
+                        return {
+                            id: user.id,
+                            name: user.name || "No Name",
+                            email: user.email || "No Email",
+                            contactNumber: user.contactNumber || "No contact number",
+                            members: parsedMembers,
+                            createdAt: new Date(user.createdAt),
+                        };
+                    });
+
+                    console.log(formattedTeams);
                     setTeams(formattedTeams);
                 }
             } catch (error: any) {
