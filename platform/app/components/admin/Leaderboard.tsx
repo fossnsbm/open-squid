@@ -1,96 +1,88 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useEffect, useState } from "react";
 
-export type TeamMarks = {
+export interface TeamMarks {
     id: string;
     name: string;
-    puzzle?: number;
-    que?: number;
-    ai?: number;
-    total?: number;
-};
-
-interface LeaderboardTableProps {
-    teams: TeamMarks[];
-    limit: number;
+    puzzle: number;
+    que: number;
+    ai: number;
 }
 
-const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
-    teams,
-    limit,
-}) => {
-    const [sortedTeams, setSortedTeams] = useState<TeamMarks[]>([]);
+interface LeaderboardProps {
+    teams: TeamMarks[];
+    limit?: number;
+}
+
+function LeaderboardTable({ teams, limit = 10 }: LeaderboardProps) {
+    const [sortedTeams, setSortedTeams] = useState<
+        (TeamMarks & { total: number })[]
+    >([]);
     const [viewLimit, setViewLimit] = useState<number>(limit);
 
     useEffect(() => {
-        const newTeams = [...teams]
+        const sorted = [...teams]
             .map((team) => ({
                 ...team,
-                total: (team.puzzle ?? 0) + (team.que ?? 0) + (team.ai ?? 0),
+                total: team.puzzle + team.que + team.ai,
             }))
-            .sort((a, b) => (b.total ?? 0) - (a.total ?? 0))
-            .slice(0, viewLimit);
+            .sort((a, b) => b.total - a.total);
 
-        setSortedTeams(newTeams);
-    }, [teams, viewLimit]);
+        setSortedTeams(sorted);
+    }, [teams]);
 
     const handleViewMore = (more: number) => {
-        if (more < 0 && viewLimit + more < 3) {
-            return;
-        }
-        if (viewLimit > teams.length && more > 0) {
-            return;
-        }
-        setViewLimit((prv) => prv + more);
+        setViewLimit((prev) => {
+            let newLimit = prev + more;
+            if (newLimit < 10) newLimit = 10;
+            if (newLimit > teams.length) newLimit = teams.length;
+            return newLimit;
+        });
     };
 
     return (
-        <section className="mb-8">
-            <h2 className="text-2xl font-bold mb-5 font-squid text-pink-400 text-center uppercase">
+        <section className="relative w-full flex flex-col items-center justify-center font-squid px-4 sm:px-6 lg:px-8 py-20">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-6 sm:mb-8 md:mb-12 lg:mb-16 text-center">
                 LEADERBOARD
             </h2>
-
-            <div className="overflow-hidden rounded-md border border-pink-800 shadow-lg">
-                {/* Table Header */}
-                <div className="bg-gray-700 border-b border-pink-800/70">
+            <div className="overflow-hidden rounded-md border-2 text-md sm:text-lg md:text-xl lg:text-2xl border-pink-900 w-full shadow-[0_0_10px_2px_rgba(255,0,128,0.7)] p-4">
+                <div className="bg-cardbackground/20 backdrop-blur-md items-center justify-center">
                     <div className="grid grid-cols-12 items-center py-4 px-6">
-                        <div className="col-span-2 text-pink-400 font-squid text-lg">
-                            RANK
+                        <div className="col-span-2 text-center text-pink-500 font-bold">
+                            Rank
                         </div>
-                        <div className="col-span-8 text-pink-400 font-squid text-lg">
-                            TEAM
+                        <div className="col-span-8 text-center text-pink-500 font-bold">
+                            Team Name
                         </div>
-                        <div className="col-span-2 text-pink-400 font-squid text-lg text-right">
-                            SCORE
+                        <div className="col-span-2 text-center text-pink-500 font-bold">
+                            Score
                         </div>
                     </div>
                 </div>
-
-                {/* Table Body */}
-                <div className="bg-gray-900 divide-y divide-pink-800/30">
+                <div className="bg-cardbackground/20 backdrop-blur-md divide-y divide-pink-900/30 uppercase">
                     {sortedTeams.length === 0 ? (
-                        <div className="py-5 px-6 text-center text-gray-400 font-squid">
-                            No teams registered yet
+                        <div className="grid grid-cols-12 items-center py-4 px-6">
+                            <div className="col-span-12 text-center text-white">
+                                No teams available
+                            </div>
                         </div>
                     ) : (
-                        sortedTeams.map((team, index) => {
+                        sortedTeams.slice(0, viewLimit).map((team, index) => {
                             const total = team.total ?? 0;
-
                             return (
                                 <div
+                                    className="grid grid-cols-12 items-center py-4 px-6"
                                     key={team.id}
-                                    className="grid grid-cols-12 items-center py-5 px-6 hover:bg-gray-800/60 transition-colors"
                                 >
-                                    <div className="col-span-2">
-                                        <span className="font-bold font-squid text-xl text-pink-400">
-                                            {index + 1}
-                                        </span>
+                                    <div className="col-span-2 text-center text-white">
+                                        {index + 1}
                                     </div>
-                                    <div className="col-span-8 font-bold text-white">
+                                    <div className="col-span-8 text-center text-white">
                                         {team.name}
                                     </div>
-                                    <div className="col-span-2 font-bold text-right text-pink-400">
-                                        {total || "_"}
+                                    <div className="col-span-2 text-center text-white">
+                                        {total}
                                     </div>
                                 </div>
                             );
@@ -98,23 +90,24 @@ const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                     )}
                 </div>
             </div>
-            <div className="w-full items-center justify-between flex mt-4">
+            <div className="mt-6 flex items-center justify-center">
                 <button
-                    className="px-4 py-2 text-sm font-squid text-pink-300 hover:text-pink-400 hover:underline transition-all"
-                    onClick={() => handleViewMore(2)}
-                >
-                    VIEW MORE
-                </button>
-
-                <button
-                    className="px-4 py-2 text-sm font-squid text-pink-300 hover:text-pink-400 hover:underline transition-all"
+                    className="bg-black border-2 border-white text-white px-4 py-2 rounded-md hover:bg-pink-700 hover:border-black transition duration-300"
                     onClick={() => handleViewMore(-2)}
+                    disabled={viewLimit <= 10}
                 >
-                    VIEW LESS
+                    View Less
+                </button>
+                <button
+                    className="ml-4 bg-black border-2 border-white text-white px-4 py-2 rounded-md hover:bg-pink-700 hover:border-black transition duration-300"
+                    onClick={() => handleViewMore(2)}
+                    disabled={viewLimit >= teams.length}
+                >
+                    View More
                 </button>
             </div>
         </section>
     );
-};
+}
 
 export default LeaderboardTable;
