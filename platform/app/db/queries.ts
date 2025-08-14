@@ -1,6 +1,6 @@
 // db/queries.ts
 import { db } from './index'
-import { questions ,quizSessions ,quizParticipants, users ,userAnswers} from './schema'
+import { questions ,quizSessions ,quizParticipants, users ,userAnswers ,teams} from './schema'
 import { nanoid } from 'nanoid'
 import { eq ,sql,desc,and} from "drizzle-orm";
 
@@ -322,8 +322,8 @@ export async function getUsers() {
   try{
     return await db
         .select()
-         .from(users)
-         .orderBy(desc(users.createdAt))
+         .from(teams)
+         .orderBy(desc(teams.createdAt))
         
   }catch(error){
 
@@ -381,32 +381,6 @@ export async function getActiveQuizSession() {
     throw new Error('Failed to fetch active quiz session')
   }
 }
-
-
-// export async function getQuizParticipants(sessionId: string): Promise<(QuizParticipant & { user_name: string })[]> {
-//   const result = await db
-//     .select({
-//       id: quizParticipants.id,
-//       quizSessionId: quizParticipants.quizSessionId,
-//       userId: quizParticipants.userId,
-//       score: quizParticipants.score,
-//       totalQuestionsAnswered: quizParticipants.totalQuestionsAnswered,
-//       joinedAt: quizParticipants.joinedAt,
-//       user_name: users.name,
-//     })
-//     .from(quizParticipants)
-//     .innerJoin(users, eq(quizParticipants.userId, users.id))
-//     .where(eq(quizParticipants.quizSessionId, sessionId))
-//     .orderBy(desc(quizParticipants.score), quizParticipants.joinedAt)
-
-//   return result.map(r => ({
-//     ...r,
-//     quiz_session_id: r.quizSessionId,
-//     user_id: r.userId,
-//     total_questions_answered: r.totalQuestionsAnswered,
-//     joined_at: r.joinedAt,
-//   })) as any
-// }
 
 export async function updateParticipantScore(
   quizSessionId: string,

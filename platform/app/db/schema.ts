@@ -123,7 +123,7 @@ export const quizParticipants = pgTable('quiz_participants', {
    .references(() => quizSessions.id, { onDelete: 'cascade' })
    .notNull(),
   userId: text('user_id')
-   .references(() => users.id, { onDelete: 'cascade' })
+   .references(() => teams.id, { onDelete: 'cascade' })
    .notNull(),
   score: integer('score').default(0),
   totalQuestionsAnswered: integer('total_questions_answered').default(0),
@@ -134,7 +134,7 @@ export const quizParticipants = pgTable('quiz_participants', {
 export const userAnswers = pgTable('user_answers', {
   id: text('id').primaryKey(),
   userId: text('user_id')
-      .references(() => users.id, { onDelete: 'cascade' })
+      .references(() => teams.id, { onDelete: 'cascade' })
       .notNull(),
   quizSessionId: text('quiz_session_id')
   .references(() => quizSessions.id, { onDelete: 'cascade' })
