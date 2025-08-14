@@ -1,8 +1,8 @@
 // db/queries.ts
 import { db } from './index'
-import { questions ,quizSessions ,quizParticipants, users} from './schema'
+import { questions ,quizSessions ,quizParticipants, users ,userAnswers} from './schema'
 import { nanoid } from 'nanoid'
-import { eq ,sql,desc} from "drizzle-orm";
+import { eq ,sql,desc,and} from "drizzle-orm";
 
 export async function createQuestion(
   question: string,
@@ -288,7 +288,7 @@ export async function addQuizParticipant(
       quizSessionId,
       userId,
       score: 0,
-      totalQuestionsAnswered: 0,
+      totalQuestionsAnswered: 0,       
       joinedAt: new Date(),
     }
 
@@ -303,6 +303,7 @@ export async function addQuizParticipant(
     throw new Error('Failed to add quiz participant')
   }
 }
+
 
 export async function getQuizParticipants(quizSessionId: string) {
   try {
@@ -331,4 +332,104 @@ export async function getUsers() {
   }
 }
 
+
+export async function saveUserAnswer(
+  userId: string,
+  quizSessionId: string,
+  questionId: string,
+  selectedAnswer: number,
+  isCorrect: boolean,
+  responseTime?: number
+) {
+  try {
+    const answerData = {
+      id: nanoid(),
+      userId,
+      quizSessionId,
+      questionId,
+      selectedAnswer,
+      isCorrect,
+      responseTime,
+      answeredAt: new Date(),
+    }
+
+    const [newAnswer] = await db
+      .insert(userAnswers)
+      .values(answerData)
+      .returning()
+
+    return newAnswer
+  } catch (error) {
+    console.error('Database error saving user answer:', error)
+    throw new Error('Failed to save user answer in database')
+  }
+}
  
+
+export async function getActiveQuizSession() {
+  try {
+    const [activeSession] = await db
+      .select()
+      .from(quizSessions)
+      .where(eq(quizSessions.status, 'live'))
+      .orderBy(desc(quizSessions.startedAt))
+      .limit(1)
+    
+    return activeSession
+  } catch (error) {
+    console.error('Database error fetching active quiz session:', error)
+    throw new Error('Failed to fetch active quiz session')
+  }
+}
+
+
+// export async function getQuizParticipants(sessionId: string): Promise<(QuizParticipant & { user_name: string })[]> {
+//   const result = await db
+//     .select({
+//       id: quizParticipants.id,
+//       quizSessionId: quizParticipants.quizSessionId,
+//       userId: quizParticipants.userId,
+//       score: quizParticipants.score,
+//       totalQuestionsAnswered: quizParticipants.totalQuestionsAnswered,
+//       joinedAt: quizParticipants.joinedAt,
+//       user_name: users.name,
+//     })
+//     .from(quizParticipants)
+//     .innerJoin(users, eq(quizParticipants.userId, users.id))
+//     .where(eq(quizParticipants.quizSessionId, sessionId))
+//     .orderBy(desc(quizParticipants.score), quizParticipants.joinedAt)
+
+//   return result.map(r => ({
+//     ...r,
+//     quiz_session_id: r.quizSessionId,
+//     user_id: r.userId,
+//     total_questions_answered: r.totalQuestionsAnswered,
+//     joined_at: r.joinedAt,
+//   })) as any
+// }
+
+export async function updateParticipantScore(
+  quizSessionId: string,
+  userId: string,
+  score: number
+) {
+  try {
+    const result = await db
+      .update(quizParticipants)
+      .set({ 
+        score: score,
+      })
+      .where(
+        and(
+          eq(quizParticipants.quizSessionId, quizSessionId),
+          eq(quizParticipants.userId, userId)
+        )
+      )
+      .returning();
+
+    return result[0];
+  } catch (error) {
+    console.error("Error updating participant score:", error);
+    throw error;
+  }
+}

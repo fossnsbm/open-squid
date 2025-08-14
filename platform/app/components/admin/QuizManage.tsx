@@ -211,25 +211,25 @@ export default function QuizManage() {
 
                     //add users as participants to quiz
 
-                    await Promise.all(
-                        users.map((user) =>
-                            fetch(
-                                `/api/quiz-sessions/${session.id}/participants`,
-                                {
-                                    method: "POST",
-                                    headers: {
-                                        "Content-Type": "application/json",
-                                    },
-                                    body: JSON.stringify({ userId: user.id }),
-                                }
-                            ).catch((error) =>
-                                console.error(
-                                    `Failed to add user ${user.id}`,
-                                    error
-                                )
-                            )
-                        )
-                    );
+                    // await Promise.all(
+                    //     users.map((user) =>
+                    //         fetch(
+                    //             `/api/quiz-sessions/${session.id}/participants`,
+                    //             {
+                    //                 method: "POST",
+                    //                 headers: {
+                    //                     "Content-Type": "application/json",
+                    //                 },
+                    //                 body: JSON.stringify({ userId: user.id }),
+                    //             }
+                    //         ).catch((error) =>
+                    //             console.error(
+                    //                 `Failed to add user ${user.id}`,
+                    //                 error
+                    //             )
+                    //         )
+                    //     )
+                    // );
 
                     setQuizState({
                         isLive: true,

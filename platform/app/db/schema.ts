@@ -131,4 +131,20 @@ export const quizParticipants = pgTable('quiz_participants', {
 })
 
 
+export const userAnswers = pgTable('user_answers', {
+  id: text('id').primaryKey(),
+  userId: text('user_id')
+      .references(() => users.id, { onDelete: 'cascade' })
+      .notNull(),
+  quizSessionId: text('quiz_session_id')
+  .references(() => quizSessions.id, { onDelete: 'cascade' })
+  .notNull(),
+  questionId: text('question_id')
+  .references(() => questions.id, { onDelete: 'cascade' })
+  .notNull(),
+  selectedAnswer: integer('selected_answer').notNull(),
+  isCorrect: boolean('is_correct').notNull(),
+  responseTime: integer('response_time'), // in seconds
+  answeredAt: timestamp('answered_at').defaultNow(),
+})
 
