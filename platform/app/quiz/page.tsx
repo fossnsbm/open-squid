@@ -326,7 +326,7 @@ export default function LiveQuizPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center pt-20 pb-20">
+            <div className="snap-end min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center pt-20 pb-20">
                 <div className="bg-gray-800 rounded-lg shadow-lg p-8 text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600 mx-auto mb-4"></div>
                     <p className="text-gray-300">Loading Quiz...</p>
@@ -336,7 +336,7 @@ export default function LiveQuizPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-900 py-8 mt-20">
+        <div className="snap-end min-h-screen bg-gray-900 py-8 mt-20">
             <div className="max-w-4xl mx-auto px-4">
                 {/* Toast Notification */}
                 {toast && (
