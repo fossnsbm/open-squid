@@ -108,15 +108,6 @@ export const quizSessions = pgTable('quiz_sessions', {
 })
 
 
-export const users = pgTable('users', {
-  id: text('id').primaryKey(),
-  name: varchar('name', { length: 255 }).notNull(),
-  email: varchar('email', { length: 255 }).unique(),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
-})
-
-
 export const quizParticipants = pgTable('quiz_participants', {
   id: text('id').primaryKey(),
   quizSessionId: text('quiz_session_id')
