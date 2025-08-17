@@ -329,6 +329,7 @@ export default function LiveQuizPage() {
         setParticipants([]);
     };
 
+    // Show loading state while session is being established or data is loading
     if (isSessionLoading || loading) {
         return (
             <div className="snap-end min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center pt-20 pb-20">
@@ -346,11 +347,10 @@ export default function LiveQuizPage() {
                 {/* Toast Notification */}
                 {toast && (
                     <div
-                        className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${
-                            toast.type === "success"
-                                ? "bg-green-600"
-                                : "bg-red-600"
-                        }`}
+                        className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${toast.type === "success"
+                            ? "bg-green-600"
+                            : "bg-red-600"
+                            }`}
                     >
                         {toast.message}
                     </div>
@@ -368,7 +368,7 @@ export default function LiveQuizPage() {
                                     {currentUser?.name || "Unknown User"}
                                 </span>
                             </div>
-                            
+
                             {currentSession?.status === "live" && !isJoined && (
                                 <button
                                     onClick={joinQuiz}
@@ -395,20 +395,19 @@ export default function LiveQuizPage() {
                                     Quiz Status:
                                 </span>
                                 <span
-                                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                        currentSession?.status === "live"
-                                            ? "bg-green-900/50 text-green-200"
-                                            : currentSession?.status ===
-                                              "completed"
+                                    className={`px-3 py-1 rounded-full text-sm font-medium ${currentSession?.status === "live"
+                                        ? "bg-green-900/50 text-green-200"
+                                        : currentSession?.status ===
+                                            "completed"
                                             ? "bg-yellow-900/40 text-yellow-200"
                                             : "bg-gray-700 text-gray-300"
-                                    }`}
+                                        }`}
                                 >
                                     {currentSession?.status === "live"
                                         ? "LIVE"
                                         : currentSession?.status === "completed"
-                                        ? "COMPLETED"
-                                        : "WAITING"}
+                                            ? "COMPLETED"
+                                            : "WAITING"}
                                 </span>
                             </div>
 
@@ -466,11 +465,10 @@ export default function LiveQuizPage() {
                                         <div className="flex items-center gap-2">
                                             <Clock className="h-4 w-4 text-gray-400" />
                                             <span
-                                                className={`font-mono text-lg font-bold ${
-                                                    timeLeft <= 3
-                                                        ? "text-red-400"
-                                                        : "text-white"
-                                                }`}
+                                                className={`font-mono text-lg font-bold ${timeLeft <= 3
+                                                    ? "text-red-400"
+                                                    : "text-white"
+                                                    }`}
                                             >
                                                 {timeLeft}s
                                             </span>
@@ -480,20 +478,18 @@ export default function LiveQuizPage() {
                                     {/* Progress Bar */}
                                     <div className="w-full bg-gray-700 rounded-full h-2">
                                         <div
-                                            className={`h-2 rounded-full transition-all duration-1000 ${
-                                                timeLeft <= 3
-                                                    ? "bg-red-500"
-                                                    : "bg-pink-600"
-                                            }`}
+                                            className={`h-2 rounded-full transition-all duration-1000 ${timeLeft <= 3
+                                                ? "bg-red-500"
+                                                : "bg-pink-600"
+                                                }`}
                                             style={{
-                                                width: `${
-                                                    (((currentSession.timePerQuestion ||
-                                                        10) -
-                                                        timeLeft) /
-                                                        (currentSession.timePerQuestion ||
-                                                            10)) *
+                                                width: `${(((currentSession.timePerQuestion ||
+                                                    10) -
+                                                    timeLeft) /
+                                                    (currentSession.timePerQuestion ||
+                                                        10)) *
                                                     100
-                                                }%`,
+                                                    }%`,
                                             }}
                                         />
                                     </div>
@@ -509,20 +505,19 @@ export default function LiveQuizPage() {
                                                 (option, index) => (
                                                     <label
                                                         key={index}
-                                                        className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                                                            hasAnswered
-                                                                ? index ===
-                                                                  currentQuestion.correctAnswer
-                                                                    ? "bg-green-900/40 border-green-600 text-green-200"
-                                                                    : selectedAnswer ===
-                                                                      index
+                                                        className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-colors ${hasAnswered
+                                                            ? index ===
+                                                                currentQuestion.correctAnswer
+                                                                ? "bg-green-900/40 border-green-600 text-green-200"
+                                                                : selectedAnswer ===
+                                                                    index
                                                                     ? "bg-red-900/40 border-red-600 text-red-200"
                                                                     : "bg-gray-700 border-gray-600 text-gray-300"
-                                                                : selectedAnswer ===
-                                                                  index
+                                                            : selectedAnswer ===
+                                                                index
                                                                 ? "bg-pink-900/30 border-pink-600 text-white"
                                                                 : "hover:bg-gray-600 border-gray-600 text-gray-300"
-                                                        }`}
+                                                            }`}
                                                     >
                                                         <input
                                                             type="radio"
@@ -548,7 +543,7 @@ export default function LiveQuizPage() {
                                                         </span>
                                                         {hasAnswered &&
                                                             index ===
-                                                                currentQuestion.correctAnswer && (
+                                                            currentQuestion.correctAnswer && (
                                                                 <CheckCircle className="h-5 w-5 text-green-400" />
                                                             )}
                                                     </label>
@@ -572,8 +567,8 @@ export default function LiveQuizPage() {
                                         {!isJoined
                                             ? "Join Quiz First"
                                             : hasAnswered
-                                            ? "Answer Submitted"
-                                            : "Submit Answer"}
+                                                ? "Answer Submitted"
+                                                : "Submit Answer"}
                                     </button>
                                 </div>
                             )}
