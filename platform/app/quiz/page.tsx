@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 import {
     Clock,
-    Users,
-    ChevronDown,
     RefreshCw,
     Loader2,
     AlertCircle,
@@ -12,14 +10,16 @@ import {
     Play,
     CheckCircle,
 } from "lucide-react";
+import { useSession } from "@/lib/auth-client"; // Add this import
 
 interface Question {
     id: string;
     question: string;
     options: string[];
-    correctAnswer: number; // Fixed: use camelCase to match DB schema
+    correctAnswer: number;
 }
 
+// We can keep this interface but we'll get user from session
 interface User {
     id: string;
     name: string;
@@ -30,9 +30,9 @@ interface QuizSession {
     id: string;
     title?: string;
     status: "pending" | "live" | "completed";
-    currentQuestionIndex: number; // Fixed: use camelCase to match DB schema
-    timePerQuestion: number; // Fixed: use camelCase to match DB schema
-    totalQuestions: number; // Fixed: use camelCase to match DB schema
+    currentQuestionIndex: number;
+    timePerQuestion: number;
+    totalQuestions: number;
     participant_count?: number;
 }
 
@@ -46,16 +46,14 @@ interface QuizParticipant {
 }
 
 export default function LiveQuizPage() {
-    const [users, setUsers] = useState<User[]>([]);
+    const { data: session } = useSession(); // Get session
+    const currentUser = session?.user; // Use logged-in user
+
     const [questions, setQuestions] = useState<Question[]>([]);
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const [currentSession, setCurrentSession] = useState<QuizSession | null>(
-        null
-    );
+    const [currentSession, setCurrentSession] = useState<QuizSession | null>(null);
     const [participants, setParticipants] = useState<QuizParticipant[]>([]);
     const [loading, setLoading] = useState(true);
     const [checkingForQuiz, setCheckingForQuiz] = useState(false);
-    const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
     // Quiz state
     const [isJoined, setIsJoined] = useState(false);
@@ -92,6 +90,13 @@ export default function LiveQuizPage() {
     useEffect(() => {
         loadInitialData();
     }, []);
+
+    // Auto-join quiz when session and user are available
+    useEffect(() => {
+        if (currentSession?.status === "live" && currentUser && !isJoined) {
+            joinQuiz();
+        }
+    }, [currentSession, currentUser, isJoined]);
 
     // Check for active quiz sessions
     useEffect(() => {
@@ -154,15 +159,8 @@ export default function LiveQuizPage() {
     const loadInitialData = async () => {
         try {
             setLoading(true);
-            const [usersRes, questionsRes] = await Promise.all([
-                fetch("/api/users"),
-                fetch("/api/questions"),
-            ]);
-
-            if (usersRes.ok) {
-                const usersData = await usersRes.json();
-                setUsers(usersData);
-            }
+            // Only need to load questions now
+            const questionsRes = await fetch("/api/questions");
 
             if (questionsRes.ok) {
                 const questionsData = await questionsRes.json();
@@ -242,7 +240,7 @@ export default function LiveQuizPage() {
 
     const joinQuiz = async () => {
         if (!currentUser || !currentSession) {
-            showToast("Please select a user first", "error");
+            showToast("You must be logged in to join", "error");
             return;
         }
 
@@ -282,7 +280,7 @@ export default function LiveQuizPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     userId: currentUser.id,
-                    sessionId: currentSession.id, // Fixed: use sessionId instead of quizSessionId
+                    sessionId: currentSession.id,
                     questionId: currentQuestion.id,
                     selectedAnswer: answerIndex,
                     isCorrect,
@@ -295,7 +293,6 @@ export default function LiveQuizPage() {
                 setHasAnswered(true);
 
                 // Update participant score if correct
-            
                 if (isCorrect) {
                     // Refresh participants to get updated score
                     await loadParticipants(currentSession.id);
@@ -324,12 +321,15 @@ export default function LiveQuizPage() {
         setParticipants([]);
     };
 
-    if (loading) {
+    // Show loading state if we're loading or there's no session (meaning user isn't logged in yet)
+    if (loading || !session) {
         return (
             <div className="snap-end min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center pt-20 pb-20">
                 <div className="bg-gray-800 rounded-lg shadow-lg p-8 text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600 mx-auto mb-4"></div>
-                    <p className="text-gray-300">Loading Quiz...</p>
+                    <p className="text-gray-300">
+                        {!session ? "Please log in to participate in quizzes" : "Loading Quiz..."}
+                    </p>
                 </div>
             </div>
         );
@@ -351,60 +351,27 @@ export default function LiveQuizPage() {
                     </div>
                 )}
 
-                {/* User Selection Panel */}
+                {/* User Info Panel - Simplified */}
                 <div className="bg-gray-800 rounded-lg border border-gray-600 shadow-sm mb-6">
-                    <div className="p-4 border-b border-gray-600">
-                        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                            <Users className="h-5 w-5 text-pink-400" />
-                            Select Your Profile
-                        </h3>
-                    </div>
                     <div className="p-4">
-                        <div className="flex items-center gap-4 flex-wrap">
-                            <span className="text-sm text-gray-300">
-                                Playing as:
-                            </span>
-
-                            <div className="relative">
-                                <button
-                                    onClick={() =>
-                                        setUserDropdownOpen(!userDropdownOpen)
-                                    }
-                                    className="flex items-center gap-2 px-4 py-2 bg-gray-700 border border-gray-500 rounded-lg text-sm font-medium text-white hover:bg-gray-600 transition-colors"
-                                >
-                                    {currentUser?.name || "Select User"}
-                                    <ChevronDown className="h-4 w-4" />
-                                </button>
-
-                                {userDropdownOpen && (
-                                    <div className="absolute top-full left-0 mt-1 bg-gray-800 border border-gray-600 rounded-md shadow-lg z-10 min-w-48">
-                                        {users.map((user) => (
-                                            <button
-                                                key={user.id}
-                                                onClick={() => {
-                                                    setCurrentUser(user);
-                                                    setUserDropdownOpen(false);
-                                                    setIsJoined(false);
-                                                }}
-                                                className="block w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                                            >
-                                                {user.name}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-300">
+                                    Logged in as:
+                                </span>
+                                <span className="font-medium text-white">
+                                    {currentUser?.name || "Unknown User"}
+                                </span>
                             </div>
-
-                            {currentSession?.status === "live" &&
-                                !isJoined &&
-                                currentUser && (
-                                    <button
-                                        onClick={joinQuiz}
-                                        className="px-3 py-1 bg-gradient-to-r from-pink-600 to-pink-800 text-white text-sm rounded-md hover:from-pink-700 hover:to-pink-900 transition-all"
-                                    >
-                                        Join Quiz
-                                    </button>
-                                )}
+                            
+                            {currentSession?.status === "live" && !isJoined && (
+                                <button
+                                    onClick={joinQuiz}
+                                    className="px-3 py-1 bg-gradient-to-r from-pink-600 to-pink-800 text-white text-sm rounded-md hover:from-pink-700 hover:to-pink-900 transition-all"
+                                >
+                                    Join Quiz
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -450,7 +417,7 @@ export default function LiveQuizPage() {
                     </div>
                 </div>
 
-                {/* Main Quiz Interface */}
+                {/* Main Quiz Interface - Rest of the component remains the same */}
                 <div className="bg-gray-800 rounded-lg border border-gray-600 shadow-sm">
                     <div className="p-6 border-b border-gray-600">
                         <h2 className="text-xl font-semibold text-white flex items-center gap-2">
@@ -470,12 +437,9 @@ export default function LiveQuizPage() {
                                     </h3>
                                     <p className="text-gray-400 mb-4">
                                         The admin will start the quiz shortly.
-                                        Make sure you've selected your profile
-                                        above.
                                     </p>
                                     <div className="bg-gray-700 border border-gray-600 rounded-lg p-4 max-w-md mx-auto">
                                         <div className="flex items-center gap-2 text-pink-300">
-                                            <Users className="h-4 w-4" />
                                             <span className="font-medium">
                                                 Ready to play!
                                             </span>
