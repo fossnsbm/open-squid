@@ -406,7 +406,7 @@ export default function QuizManage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center pt-20 pb-20">
+            <div className="snap-end min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center pt-20 pb-20">
                 <div className="bg-gray-800 rounded-lg shadow-lg p-8 text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600 mx-auto mb-4"></div>
                     <p className="text-gray-300">Loading Admin Panel...</p>
@@ -419,7 +419,7 @@ export default function QuizManage() {
     // const currentQuestion = questions[quizState.currentQuestionIndex];
 
     return (
-        <div className="flex items-center justify-center px-4 font-squid min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 pt-10 pb-20 uppercase ">
+        <div className="snap-end flex items-center justify-center px-4 font-squid min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 pt-10 pb-20 uppercase ">
             {showToast && (
                 <Toast
                     message={showToast.message}
