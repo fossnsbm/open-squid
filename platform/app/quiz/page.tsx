@@ -20,13 +20,6 @@ interface Question {
     correctAnswer: number;
 }
 
-// We can keep this interface but we'll get user from session
-interface User {
-    id: string;
-    name: string;
-    email?: string;
-}
-
 interface QuizSession {
     id: string;
     title?: string;
@@ -35,15 +28,6 @@ interface QuizSession {
     timePerQuestion: number;
     totalQuestions: number;
     participant_count?: number;
-}
-
-interface QuizParticipant {
-    id: string;
-    quiz_session_id: string;
-    user_id: string;
-    user_name: string;
-    score: number;
-    total_questions_answered: number;
 }
 
 export default function LiveQuizPage() {
@@ -59,7 +43,6 @@ export default function LiveQuizPage() {
 
     const [questions, setQuestions] = useState<Question[]>([]);
     const [currentSession, setCurrentSession] = useState<QuizSession | null>(null);
-    const [participants, setParticipants] = useState<QuizParticipant[]>([]);
     const [loading, setLoading] = useState(true);
     const [checkingForQuiz, setCheckingForQuiz] = useState(false);
 
@@ -69,6 +52,9 @@ export default function LiveQuizPage() {
     const [hasAnswered, setHasAnswered] = useState(false);
     const [timeLeft, setTimeLeft] = useState(10);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    // Track user's score locally instead of fetching participants
+    const [userScore, setUserScore] = useState(0);
+    const [questionsAnswered, setQuestionsAnswered] = useState(0);
 
     // Toast state
     const [toast, setToast] = useState<{
@@ -92,6 +78,7 @@ export default function LiveQuizPage() {
         sessionQuestionIndex: currentSession?.currentQuestionIndex,
         timeLeft,
         hasAnswered,
+        userScore,
     });
 
     // Load initial data
@@ -153,21 +140,10 @@ export default function LiveQuizPage() {
         return () => clearInterval(interval);
     }, [currentSession, timeLeft, hasAnswered, selectedAnswer]);
 
-    // Load participants when session is active
-    useEffect(() => {
-        if (currentSession && currentSession.status === "live") {
-            const interval = setInterval(() => {
-                loadParticipants(currentSession.id);
-            }, 3000);
-
-            return () => clearInterval(interval);
-        }
-    }, [currentSession]);
-
     const loadInitialData = async () => {
         try {
             setLoading(true);
-            // Only need to load questions now
+            // Only need to load questions
             const questionsRes = await fetch("/api/questions");
 
             if (questionsRes.ok) {
@@ -232,20 +208,6 @@ export default function LiveQuizPage() {
         }
     };
 
-    const loadParticipants = async (sessionId: string) => {
-        try {
-            const response = await fetch(
-                `/api/quiz-sessions/${sessionId}/participants`
-            );
-            if (response.ok) {
-                const data = await response.json();
-                setParticipants(data);
-            }
-        } catch (error) {
-            console.error("Error loading participants:", error);
-        }
-    };
-
     const joinQuiz = async () => {
         if (!currentUser || !currentSession) {
             showToast("You must be logged in to join", "error");
@@ -253,6 +215,7 @@ export default function LiveQuizPage() {
         }
 
         try {
+            // Keep this API call to register participation
             const response = await fetch(
                 `/api/quiz-sessions/${currentSession.id}/participants`,
                 {
@@ -264,7 +227,6 @@ export default function LiveQuizPage() {
 
             if (response.ok) {
                 setIsJoined(true);
-                await loadParticipants(currentSession.id);
                 showToast("Successfully joined the quiz!", "success");
             } else {
                 showToast("Failed to join quiz", "error");
@@ -299,11 +261,11 @@ export default function LiveQuizPage() {
 
             if (response.ok) {
                 setHasAnswered(true);
+                setQuestionsAnswered(prev => prev + 1);
 
-                // Update participant score if correct
+                // Update score locally if correct
                 if (isCorrect) {
-                    // Refresh participants to get updated score
-                    await loadParticipants(currentSession.id);
+                    setUserScore(prev => prev + 1);
                 }
 
                 showToast(
@@ -326,7 +288,8 @@ export default function LiveQuizPage() {
         setIsJoined(false);
         setTimeLeft(10);
         setCurrentQuestionIndex(0);
-        setParticipants([]);
+        setUserScore(0);
+        setQuestionsAnswered(0);
     };
 
     // Show loading state while session is being established or data is loading
@@ -421,7 +384,7 @@ export default function LiveQuizPage() {
                     </div>
                 </div>
 
-                {/* Main Quiz Interface - Rest of the component remains the same */}
+                {/* Main Quiz Interface */}
                 <div className="bg-gray-800 rounded-lg border border-gray-600 shadow-sm">
                     <div className="p-6 border-b border-gray-600">
                         <h2 className="text-xl font-semibold text-white flex items-center gap-2">
@@ -583,19 +546,13 @@ export default function LiveQuizPage() {
                                 <p className="text-gray-400 mb-4">
                                     Your final score:{" "}
                                     <strong className="text-2xl text-pink-300">
-                                        {participants.find(
-                                            (p) => p.user_id === currentUser?.id
-                                        )?.score || 0}{" "}
-                                        points
+                                        {userScore} points
                                     </strong>
                                 </p>
                                 <div className="bg-gray-700 border border-gray-600 rounded-lg p-4 max-w-md mx-auto mb-4">
                                     <p className="text-sm text-gray-300">
                                         Questions answered:{" "}
-                                        {participants.find(
-                                            (p) => p.user_id === currentUser?.id
-                                        )?.total_questions_answered || 0}
-                                        /{questions.length}
+                                        {questionsAnswered}/{questions.length}
                                     </p>
                                 </div>
                                 <button
