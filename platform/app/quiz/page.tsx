@@ -10,7 +10,8 @@ import {
     Play,
     CheckCircle,
 } from "lucide-react";
-import { useSession } from "@/lib/auth-client"; // Add this import
+import { useSession } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 interface Question {
     id: string;
@@ -46,8 +47,15 @@ interface QuizParticipant {
 }
 
 export default function LiveQuizPage() {
-    const { data: session } = useSession(); // Get session
-    const currentUser = session?.user; // Use logged-in user
+    const { data: session, isPending: isSessionLoading } = useSession();
+    const currentUser = session?.user;
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!isSessionLoading && session === null) {
+            router.push("/login");
+        }
+    }, [session, isSessionLoading, router]);
 
     const [questions, setQuestions] = useState<Question[]>([]);
     const [currentSession, setCurrentSession] = useState<QuizSession | null>(null);
@@ -321,15 +329,12 @@ export default function LiveQuizPage() {
         setParticipants([]);
     };
 
-    // Show loading state if we're loading or there's no session (meaning user isn't logged in yet)
-    if (loading || !session) {
+    if (isSessionLoading || loading) {
         return (
             <div className="snap-end min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center pt-20 pb-20">
                 <div className="bg-gray-800 rounded-lg shadow-lg p-8 text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600 mx-auto mb-4"></div>
-                    <p className="text-gray-300">
-                        {!session ? "Please log in to participate in quizzes" : "Loading Quiz..."}
-                    </p>
+                    <p className="text-gray-300">Loading Quiz...</p>
                 </div>
             </div>
         );
