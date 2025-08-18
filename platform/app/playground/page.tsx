@@ -2,7 +2,6 @@
 import { useState } from "react";
 import EchoPrompt from "../components/playground/EchoPrompt";
 import Toast from "../components/common/Toast";
-import QuizManage from "../components/admin/QuizManage";
 import QuizSurvival from "../components/playground/QuizSurvival";
 export default function GameSelection() {
 
@@ -67,9 +66,6 @@ export default function GameSelection() {
           {activeGame === "squid clue" && <Game3Section />}
         </div>
       </div>
-
-       {/* 
-       <QuizManage /> */}
     </div>
     </div>
   );
