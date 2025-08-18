@@ -1,5 +1,6 @@
 "use client";
 
+import "@uploadthing/react/styles.css";
 import { useState, useEffect } from "react";
 import {
     ChevronDown,
@@ -9,6 +10,8 @@ import {
     Clock,
 } from "lucide-react";
 import Toast from "../common/Toast";
+import { genUploader } from "uploadthing/client";
+import { fileRouter } from "@/app/api/uploadthing/core";
 
 interface Session {
     id: string;
@@ -256,6 +259,25 @@ export default function EchoPrompt({ currentUser, isSessionLoading }: { currentU
             return;
         }
 
+        const { uploadFiles } = genUploader<fileRouter>();
+        let fileUrl = ''
+
+        try {
+            if (file) {
+                const response = await uploadFiles("imageUploader", {
+                    files: [file],
+                })
+
+                fileUrl = response[0].ufsUrl
+            }
+            else {
+                throw new Error('no file choosen')
+            }
+        } catch (error) {
+            alert('error uploading file')
+            return
+        }
+
         try {
             const response = await fetch("/api/prompt-submission", {
                 method: "POST",
@@ -263,7 +285,7 @@ export default function EchoPrompt({ currentUser, isSessionLoading }: { currentU
                 body: JSON.stringify({
                     userId: currentUser?.id,
                     sessionId: currentSession?.id,
-                    imageUrl: file,
+                    imageUrl: fileUrl,
                     description,
                 }),
             });
@@ -500,3 +522,4 @@ export default function EchoPrompt({ currentUser, isSessionLoading }: { currentU
         </div>
     );
 }
+
