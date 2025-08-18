@@ -7,14 +7,14 @@ import { useSession, signOut } from "@/lib/auth-client";
 
 const navLinks = [
     { name: "Home", href: "/" },
-    { name: "LeaderBoard", href: "/" },
-    { name: "Playground", href: "/" },
+    { name: "LeaderBoard", href: "/leaderboard" },
+    { name: "Playground", href: "/playground" },
 ];
 
 const mobileLinks = [
     { name: "Home", href: "/" },
-    { name: "LeaderBoard", href: "/" },
-    { name: "Playground", href: "/" },
+    { name: "LeaderBoard", href: "/leaderboard" },
+    { name: "Playground", href: "/playground" },
 ];
 
 const registerLink = { name: "Register Now", href: "/#register" };
