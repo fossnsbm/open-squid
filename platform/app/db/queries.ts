@@ -1,6 +1,6 @@
 import { db } from './index'
 
-import { questions ,quizSessions ,quizParticipants, users ,userAnswers ,teams,promptSessions,promptParticipants,userPrompts} from './schema'
+import { questions ,quizSessions ,quizParticipants, users ,userAnswers ,teams,promptSessions,promptParticipants,userPrompts ,puzzleMarks} from './schema'
 import { nanoid } from 'nanoid'
 import { eq ,sql,desc,and} from "drizzle-orm";
 
@@ -320,6 +320,7 @@ export async function getUsers() {
     return await db
         .select()
          .from(teams)
+        .where(eq(teams.role, 'user'))
          .orderBy(desc(teams.createdAt))
         
   }catch(error){
@@ -603,3 +604,27 @@ export async function checkPromptSubmission
   }
 }
 
+export async function addPuzzleMarks(
+  userId: string,
+  score: number
+){
+  try {
+    const markData = {
+      id: nanoid(),
+      userId,
+      score,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+
+    const [newMark] = await db
+      .insert(puzzleMarks)
+      .values(markData)
+      .returning()
+
+    return newMark
+  } catch (error) {
+    console.error('Database error adding puzzle mark:', error)
+    throw new Error('Failed to add puzzle mark')
+  }
+}
