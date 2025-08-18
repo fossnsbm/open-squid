@@ -69,9 +69,6 @@ export async function deleteQuestion(id: string) {
   }
 }
 
-
-
-    //1
 export async function createQuizSession(
   title: string,
   timePerQuestion: number = 10
@@ -405,5 +402,6 @@ export async function updateParticipantScore(
   } catch (error) {
     console.error("Error updating participant score:", error);
     throw error;
+
   }
 }

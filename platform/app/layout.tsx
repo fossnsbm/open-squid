@@ -4,8 +4,6 @@ import localFont from "next/font/local";
 
 
 import "./globals.css";
-import Header from "./components/common/Header";
-import Footer from "./components/common/Footer";
 
 const inter = Inter({
     display: "swap",
@@ -38,9 +36,7 @@ export default function RootLayout({
             <body className={`${inter.variable} ${squid.variable} antialiased`}>
                 <main className="fixed top-0 left-0 w-dvw h-dvh z-10 flex flex-col">
                     <div className="min-h-screen snap-y snap-mandatory overflow-y-auto scroll-smooth">
-                        <Header />
                         {children}
-                        <Footer />
                     </div>
 
                 </main>

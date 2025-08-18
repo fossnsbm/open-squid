@@ -8,6 +8,7 @@ import {
   jsonb,
   uuid,
   primaryKey,
+
 } from "drizzle-orm/pg-core";
 
 
@@ -91,7 +92,6 @@ export const questions = pgTable("questions", {
     () => /* @__PURE__ */ new Date(),
   ),
 });
-
 
 export const quizSessions = pgTable('quiz_sessions', {
   id: text('id').primaryKey(),
