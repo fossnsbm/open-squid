@@ -138,4 +138,3 @@ export const userAnswers = pgTable('user_answers', {
   responseTime: integer('response_time'), // in seconds
   answeredAt: timestamp('answered_at').defaultNow(),
 })
-

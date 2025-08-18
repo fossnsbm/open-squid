@@ -4,6 +4,7 @@ import { questions ,quizSessions ,quizParticipants, users ,userAnswers ,teams} f
 import { nanoid } from 'nanoid'
 import { eq ,sql,desc,and} from "drizzle-orm";
 
+
 export async function createQuestion(
   question: string,
   options: string[],
@@ -402,6 +403,7 @@ export async function updateParticipantScore(
   } catch (error) {
     console.error("Error updating participant score:", error);
     throw error;
+
 
   }
 }
