@@ -24,7 +24,7 @@ export default function GameSelection() {
                 />
             )}
 
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-10 px-4 font-squid uppercase">
+            <div className="snap-end min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-10 px-4 font-squid uppercase">
                 <div className="max-w-4xl mx-auto">
                     <h1 className="text-4xl font-bold text-center text-white mb-10">
                         PlayGround
