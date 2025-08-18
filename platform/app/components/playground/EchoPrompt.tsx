@@ -36,6 +36,7 @@ export default function EchoPrompt({ currentUser, isSessionLoading }: { currentU
     const [currentSession, setCurrentSession] = useState<Session | null>(null);
     const [checkingForSession, setCheckingForSession] = useState(false);
     const [isJoined, setIsJoined] = useState(false);
+    const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null);
 
     const showToastMessage = (message: string, type: "success" | "error") => {
         setShowToast({ message, type });
@@ -43,7 +44,28 @@ export default function EchoPrompt({ currentUser, isSessionLoading }: { currentU
 
     useEffect(() => {
         checkForActiveSession();
-    }, []);
+
+        const interval = setInterval(() => {
+            checkForActiveSession();
+        }, 8000);
+
+        setPollInterval(interval);
+
+        return () => clearInterval(interval);
+    }, []); // Remove isJoined dependency
+
+    useEffect(() => {
+        return () => {
+            if (pollInterval) clearInterval(pollInterval);
+        }
+    }, [pollInterval]);
+
+
+    useEffect(() => {
+        if (!currentSession || currentSession.action === "completed") {
+            setIsJoined(false);
+        }
+    }, [currentSession?.action]);
 
     const checkExistingSubmission = async (): Promise<boolean> => {
         if (!currentUser?.id || !currentSession?.id) return false;
@@ -63,18 +85,10 @@ export default function EchoPrompt({ currentUser, isSessionLoading }: { currentU
         }
     };
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            checkForActiveSession();
-        }, 8000);
-
-        return () => clearInterval(interval);
-    }, []);
 
     useEffect(() => {
         if (currentSession && currentSession.action === "live") {
             const interval = setInterval(() => {
-                // loadParticipants(currentSession.id);
             }, 3000);
 
             return () => clearInterval(interval);
@@ -94,15 +108,11 @@ export default function EchoPrompt({ currentUser, isSessionLoading }: { currentU
                 );
 
                 if (activeSession) {
+                    console.log('found active session', activeSession)
                     setCurrentSession(activeSession);
-
-                    // Automatically try to join session if user is logged in
-                    if (currentUser && !isJoined) {
-                        await joinSession();
-                    }
                 } else {
+                    console.log('no active session')
                     setCurrentSession(null);
-                    setIsJoined(false);
                 }
             }
         } catch (error) {
@@ -112,15 +122,37 @@ export default function EchoPrompt({ currentUser, isSessionLoading }: { currentU
         }
     };
 
-    const joinSession = async () => {
-        if (!currentUser || !currentSession) {
+    const joinSession = async (session?: Session | null) => {
+        if (isJoined) {
+            return;
+        }
+
+        const targetSession = session || currentSession;
+
+        if (!currentUser || !targetSession) {
             showToastMessage("You must be logged in to join", "error");
             return;
         }
 
         try {
+            const checkResponse = await fetch(
+                `/api/prompt-session/${targetSession.id}/participants`
+            );
+
+            if (checkResponse.ok) {
+                const participants = await checkResponse.json();
+                const isAlreadyParticipant = participants.find(
+                    (participant: any) => participant.userId === currentUser.id
+                );
+
+                if (isAlreadyParticipant) {
+                    setIsJoined(true);
+                    return; // No need to show toast or join again
+                }
+            }
+
             const response = await fetch(
-                `/api/prompt-session/${currentSession.id}/participants`,
+                `/api/prompt-session/${targetSession.id}/participants`,
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -320,7 +352,7 @@ export default function EchoPrompt({ currentUser, isSessionLoading }: { currentU
                     {currentSession && !isJoined && currentUser && (
                         <div className="flex items-center gap-4">
                             <button
-                                onClick={joinSession}
+                                onClick={() => joinSession()}
                                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-600 to-pink-800 text-white text-sm rounded-md hover:from-pink-700 hover:to-pink-900 transition-all"
                             >
                                 <Play className="h-4 w-4" />
