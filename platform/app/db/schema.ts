@@ -114,7 +114,14 @@ export const promptParticipants = pgTable('prompt_participants', {
   id: text('id').primaryKey(),
   promptSessionId: text('prompt_session_id')
    .references(() => promptSessions.id, { onDelete: 'cascade' })
-  
+   .notNull(),
+  userId: text('user_id')
+   .references(() => teams.id, { onDelete: 'cascade' })
+   .notNull(),
+  score: integer('score').default(0),
+  updatedAt: timestamp('updated_at').defaultNow(),
+  joinedAt: timestamp('joined_at').defaultNow(),
+})
   
 export const quizSessions = pgTable('quiz_sessions', {
   id: text('id').primaryKey(),
