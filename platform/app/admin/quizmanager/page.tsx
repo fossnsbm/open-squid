@@ -149,19 +149,19 @@ export default function QuizManage() {
 
         return () => clearInterval(interval);
     }, [quizState.isLive, quizState.timeLeft, quizState.isFinished]);
-    
+
     const [responsesForCurrentQuestion, setResponsesForCurrentQuestion] = useState(0);
-    
+
     useEffect(() => {
         let interval: NodeJS.Timeout;
-        
+
         if (currentSession && quizState.isLive) {
             const fetchResponses = async () => {
                 try {
                     const response = await fetch(
                         `/api/quiz-sessions/${currentSession.id}/responses?questionIndex=${quizState.currentQuestionIndex}`
                     );
-                    
+
                     if (response.ok) {
                         const answersData = await response.json();
                         setResponsesForCurrentQuestion(answersData.length);
@@ -169,11 +169,11 @@ export default function QuizManage() {
                 } catch (error) {
                 }
             };
-            
+
             fetchResponses();
             interval = setInterval(fetchResponses, 3000);
         }
-        
+
         return () => clearInterval(interval);
     }, [currentSession?.id, quizState.isLive, quizState.currentQuestionIndex]);
 
@@ -199,11 +199,11 @@ export default function QuizManage() {
             if (sessionsRes.ok) {
                 const sessionsData = await sessionsRes.json();
                 setQuizSessions(sessionsData);
-                
+
                 const liveSession = sessionsData.find(
                     (s: QuizSession) => s.status === "live"
                 );
-                
+
                 if (liveSession) {
                     setCurrentSession(liveSession);
                     setQuizState({
@@ -227,16 +227,16 @@ export default function QuizManage() {
         try {
             setRefreshing(true);
             const response = await fetch("/api/quiz-sessions");
-            
+
             if (response.ok) {
                 const sessions = await response.json();
                 setQuizSessions(sessions);
-                
+
                 if (currentSession) {
                     const updatedSession = sessions.find(
                         (s: QuizSession) => s.id === currentSession.id
                     );
-                    
+
                     if (updatedSession) {
                         setCurrentSession(updatedSession);
                     }
@@ -292,9 +292,9 @@ export default function QuizManage() {
                 const session = await response.json();
                 setIsCreatingSession(false);
                 setNewSessionTitle("");
-                
+
                 await refreshSessions();
-                
+
                 showToastMessage(
                     `Quiz session "${newSessionTitle}" created successfully! Users can now join.`,
                     "success"
@@ -323,7 +323,7 @@ export default function QuizManage() {
                 );
 
                 if (updateResponse.ok) {
-                    
+
                     const updatedSession = await updateResponse.json();
                     setCurrentSession(updatedSession);
 
@@ -367,7 +367,7 @@ export default function QuizManage() {
                 }));
 
                 await refreshSessions();
-                
+
                 showToastMessage(
                     "Quiz has been stopped successfully.",
                     "success"
@@ -421,7 +421,7 @@ export default function QuizManage() {
                 }));
 
                 await refreshSessions();
-                
+
                 showToastMessage("Quiz completed!", "success");
             } catch (error) {
             }
@@ -430,7 +430,7 @@ export default function QuizManage() {
 
     const selectSession = (session: QuizSession) => {
         setCurrentSession(session);
-        
+
         if (session.status === "live") {
             setQuizState({
                 isLive: true,
@@ -439,7 +439,7 @@ export default function QuizManage() {
                 isFinished: false,
                 sessionId: session.id,
             });
-            
+
             loadParticipants(session.id);
         } else {
             setQuizState({
@@ -449,7 +449,7 @@ export default function QuizManage() {
                 isFinished: session.status === "completed",
                 sessionId: session.id,
             });
-            
+
             if (session.status === "completed") {
                 loadParticipants(session.id);
             }
@@ -474,7 +474,7 @@ export default function QuizManage() {
                 if (currentSession?.id === id) {
                     setCurrentSession(null);
                 }
-                
+
                 await refreshSessions();
                 showToastMessage("Quiz session deleted successfully", "success");
             } else {
@@ -577,7 +577,7 @@ export default function QuizManage() {
                     <ShieldAlert className="h-16 w-16 text-red-500 mx-auto mb-4" />
                     <h2 className="text-xl text-white font-bold mb-2">Access Restricted</h2>
                     <p className="text-gray-300 mb-4">
-                        This area is only accessible to administrators. 
+                        This area is only accessible to administrators.
                         Redirecting to login page...
                     </p>
                     <div className="animate-pulse bg-gray-700 h-1 w-full rounded"></div>
@@ -607,7 +607,7 @@ export default function QuizManage() {
                             Control your live quiz and manage questions
                         </p>
                     </div>
-                    
+
                     {/* Main Grid */}
                     <div className="grid gap-6 md:grid-cols-2 mb-6 p-4">
                         {/* Left Column */}
@@ -644,7 +644,7 @@ export default function QuizManage() {
                                             Refresh
                                         </button>
                                     </div>
-                                    
+
                                     {/* Session Creation Form */}
                                     {isCreatingSession && (
                                         <div className="bg-gray-800 rounded-lg border border-gray-600 p-4 mt-4">
@@ -662,7 +662,7 @@ export default function QuizManage() {
                                                         className="w-full bg-gray-700 border border-gray-600 rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-pink-600"
                                                     />
                                                 </div>
-                                                
+
                                                 <div>
                                                     <label className="block text-sm font-medium text-white mb-1">
                                                         Time Per Question (seconds)
@@ -676,7 +676,7 @@ export default function QuizManage() {
                                                         className="w-full bg-gray-700 border border-gray-600 rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-pink-600"
                                                     />
                                                 </div>
-                                                
+
                                                 <div className="pt-2 flex gap-2">
                                                     <button
                                                         onClick={createQuizSession}
@@ -694,7 +694,7 @@ export default function QuizManage() {
                                             </div>
                                         </div>
                                     )}
-                                    
+
                                     {/* Available Sessions List */}
                                     <div className="mt-4">
                                         <h4 className="text-white text-sm font-medium mb-2">Available Sessions</h4>
@@ -707,25 +707,23 @@ export default function QuizManage() {
                                         ) : (
                                             <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
                                                 {quizSessions.map(session => (
-                                                    <div 
-                                                        key={session.id} 
-                                                        className={`flex items-center justify-between p-3 rounded-lg border ${
-                                                            currentSession?.id === session.id
-                                                                ? "bg-gray-600 border-pink-500"
-                                                                : "bg-gray-800 border-gray-600 hover:border-gray-500"
-                                                        } cursor-pointer`}
+                                                    <div
+                                                        key={session.id}
+                                                        className={`flex items-center justify-between p-3 rounded-lg border ${currentSession?.id === session.id
+                                                            ? "bg-gray-600 border-pink-500"
+                                                            : "bg-gray-800 border-gray-600 hover:border-gray-500"
+                                                            } cursor-pointer`}
                                                         onClick={() => selectSession(session)}
                                                     >
                                                         <div>
                                                             <div className="flex items-center gap-2">
-                                                                <span 
-                                                                    className={`w-3 h-3 rounded-full ${
-                                                                        session.status === "live" 
-                                                                            ? "bg-green-500" 
-                                                                            : session.status === "pending" 
-                                                                            ? "bg-blue-500" 
+                                                                <span
+                                                                    className={`w-3 h-3 rounded-full ${session.status === "live"
+                                                                        ? "bg-green-500"
+                                                                        : session.status === "pending"
+                                                                            ? "bg-blue-500"
                                                                             : "bg-yellow-500"
-                                                                    }`}
+                                                                        }`}
                                                                 />
                                                                 <span className="font-medium text-white">{session.title || "Unnamed Quiz"}</span>
                                                             </div>
@@ -744,9 +742,9 @@ export default function QuizManage() {
                                                                 )}
                                                             </div>
                                                         </div>
-                                                        
+
                                                         {session.status !== "live" && (
-                                                            <button 
+                                                            <button
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
                                                                     deleteSession(session.id);
@@ -763,7 +761,7 @@ export default function QuizManage() {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {/* Quiz Control Panel */}
                             <div className="bg-gray-700 rounded-lg border-2 border-gray-600 p-4 shadow-md">
                                 <div className="p-6 border-b border-gray-600">
@@ -783,13 +781,12 @@ export default function QuizManage() {
                                                 </h4>
                                                 <div className="flex flex-wrap gap-2 text-sm">
                                                     <span
-                                                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                                            currentSession.status === "live"
-                                                                ? "bg-green-100 text-green-800"
-                                                                : currentSession.status === "pending"
+                                                        className={`px-2 py-1 rounded-full text-xs font-medium ${currentSession.status === "live"
+                                                            ? "bg-green-100 text-green-800"
+                                                            : currentSession.status === "pending"
                                                                 ? "bg-blue-100 text-blue-800"
                                                                 : "bg-yellow-100 text-yellow-800"
-                                                        }`}
+                                                            }`}
                                                     >
                                                         {currentSession.status}
                                                     </span>
@@ -801,7 +798,7 @@ export default function QuizManage() {
                                                     </span>
                                                 </div>
                                             </div>
-                                            
+
                                             <div className="flex flex-wrap gap-3">
                                                 {currentSession.status === "pending" && (
                                                     <button
@@ -812,7 +809,7 @@ export default function QuizManage() {
                                                         Start Quiz
                                                     </button>
                                                 )}
-                                                
+
                                                 {currentSession.status === "live" && (
                                                     <>
                                                         <div className="flex flex-col gap-2 mb-4">
@@ -826,16 +823,15 @@ export default function QuizManage() {
                                                                     </p>
                                                                 </div>
                                                                 <div className="ml-2">
-                                                                    <div className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                                                                        quizState.timeLeft <= 3
-                                                                            ? "bg-red-100 text-red-800"
-                                                                            : "bg-blue-100 text-blue-800"
-                                                                    }`}>
+                                                                    <div className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${quizState.timeLeft <= 3
+                                                                        ? "bg-red-100 text-red-800"
+                                                                        : "bg-blue-100 text-blue-800"
+                                                                        }`}>
                                                                         {quizState.timeLeft > 0 ? `${quizState.timeLeft}s left` : "Time's up!"}
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            
+
                                                             <button
                                                                 onClick={moveToNextQuestion}
                                                                 disabled={quizState.currentQuestionIndex >= questions.length - 1}
@@ -844,7 +840,7 @@ export default function QuizManage() {
                                                                 Next Question
                                                             </button>
                                                         </div>
-                                                        
+
                                                         <button
                                                             onClick={stopQuiz}
                                                             className="flex items-center gap-2 bg-red-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors"
@@ -855,7 +851,7 @@ export default function QuizManage() {
                                                     </>
                                                 )}
                                             </div>
-                                            
+
                                             {currentSession.status === "live" && (
                                                 <div className="space-y-2 mt-4">
                                                     <div className="flex justify-between text-sm">
@@ -864,20 +860,19 @@ export default function QuizManage() {
                                                             {quizState.currentQuestionIndex + 1} of {questions.length}
                                                         </span>
                                                     </div>
-                                                    
+
                                                     <div className="flex justify-between text-sm">
                                                         <span className="text-white">Time Left:</span>
                                                         <span className="font-medium text-white">
                                                             {quizState.timeLeft}s
                                                         </span>
                                                     </div>
-                                                    
+
                                                     <div className="w-full bg-gray-600 rounded-full h-2 mt-2">
-                                                        <div 
-                                                            className={`h-2 rounded-full transition-all ${
-                                                                quizState.timeLeft <= 3 ? "bg-red-500" : "bg-pink-500"
-                                                            }`}
-                                                            style={{ 
+                                                        <div
+                                                            className={`h-2 rounded-full transition-all ${quizState.timeLeft <= 3 ? "bg-red-500" : "bg-pink-500"
+                                                                }`}
+                                                            style={{
                                                                 width: `${(quizState.timeLeft / currentSession.time_per_question) * 100}%`
                                                             }}
                                                         />
@@ -897,7 +892,7 @@ export default function QuizManage() {
                                 </div>
                             </div>
                         </div>
-                        
+
                         {/* Right Column */}
                         <div className="space-y-6">
                             {/* Current Question Display */}
@@ -916,11 +911,10 @@ export default function QuizManage() {
                                             {currentQuestion.options.map((option, index) => (
                                                 <div
                                                     key={index}
-                                                    className={`p-3 rounded-lg ${
-                                                        index === currentQuestion.correct_answer
-                                                            ? "bg-green-100 text-green-800 border border-green-300"
-                                                            : "bg-gray-600 text-white border border-gray-500"
-                                                    }`}
+                                                    className={`p-3 rounded-lg ${index === currentQuestion.correct_answer
+                                                        ? "bg-green-100 text-green-800 border border-green-300"
+                                                        : "bg-gray-600 text-white border border-gray-500"
+                                                        }`}
                                                 >
                                                     {option}
                                                 </div>
@@ -929,7 +923,7 @@ export default function QuizManage() {
                                     </div>
                                 </div>
                             )}
-                            
+
                             {/* Add New Question */}
                             <div className="bg-gray-700 rounded-lg border-2 border-gray-600 p-4 shadow-md">
                                 <div className="p-6 border-b border-gray-600">
@@ -990,9 +984,8 @@ export default function QuizManage() {
                                                                 })
                                                             );
                                                         }}
-                                                        placeholder={`Option ${
-                                                            index + 1
-                                                        }`}
+                                                        placeholder={`Option ${index + 1
+                                                            }`}
                                                         className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                     />
                                                     <label className="flex items-center gap-1 text-sm text-gray-300">
@@ -1114,12 +1107,11 @@ export default function QuizManage() {
                                                         (option, optIndex) => (
                                                             <div
                                                                 key={optIndex}
-                                                                className={`p-2 rounded ${
-                                                                    optIndex ===
+                                                                className={`p-2 rounded ${optIndex ===
                                                                     question.correct_answer
-                                                                        ? "bg-green-100 text-green-800"
-                                                                        : "bg-gray-600 text-white"
-                                                                }`}
+                                                                    ? "bg-green-100 text-green-800"
+                                                                    : "bg-gray-600 text-white"
+                                                                    }`}
                                                             >
                                                                 {option}{" "}
                                                                 {optIndex ===

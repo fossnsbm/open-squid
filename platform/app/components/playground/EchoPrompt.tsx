@@ -1,7 +1,7 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import {
-    Users,
     ChevronDown,
     RefreshCw,
     Loader2,
@@ -9,12 +9,6 @@ import {
     Clock,
 } from "lucide-react";
 import Toast from "../common/Toast";
-
-interface User {
-    id: string;
-    name: string;
-    email?: string;
-}
 
 interface Session {
     id: string;
@@ -24,16 +18,7 @@ interface Session {
     participant_count?: number;
 }
 
-interface SessionParticipant {
-    id: string;
-    session_id: string;
-    user_id: string;
-    user_name: string;
-    score: number;
-    total_questions_answered: number;
-}
-
-export default function EchoPrompt() {
+export default function EchoPrompt({ currentUser, isSessionLoading }: { currentUser: any | null, isSessionLoading?: boolean }) {
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
     const [description, setDescription] = useState("");
@@ -48,22 +33,39 @@ export default function EchoPrompt() {
         type: "success" | "error";
     } | null>(null);
 
-    const [users, setUsers] = useState<User[]>([]);
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [currentSession, setCurrentSession] = useState<Session | null>(null);
-    const [participants, setParticipants] = useState<SessionParticipant[]>([]);
     const [checkingForSession, setCheckingForSession] = useState(false);
-    const [userDropdownOpen, setUserDropdownOpen] = useState(false);
     const [isJoined, setIsJoined] = useState(false);
+    const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null);
 
     const showToastMessage = (message: string, type: "success" | "error") => {
         setShowToast({ message, type });
     };
 
     useEffect(() => {
-        loadUsers();
         checkForActiveSession();
-    }, []);
+
+        const interval = setInterval(() => {
+            checkForActiveSession();
+        }, 8000);
+
+        setPollInterval(interval);
+
+        return () => clearInterval(interval);
+    }, []); // Remove isJoined dependency
+
+    useEffect(() => {
+        return () => {
+            if (pollInterval) clearInterval(pollInterval);
+        }
+    }, [pollInterval]);
+
+
+    useEffect(() => {
+        if (!currentSession || currentSession.action === "completed") {
+            setIsJoined(false);
+        }
+    }, [currentSession?.action]);
 
     const checkExistingSubmission = async (): Promise<boolean> => {
         if (!currentUser?.id || !currentSession?.id) return false;
@@ -83,35 +85,15 @@ export default function EchoPrompt() {
         }
     };
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            checkForActiveSession();
-        }, 8000);
-
-        return () => clearInterval(interval);
-    }, []);
 
     useEffect(() => {
         if (currentSession && currentSession.action === "live") {
             const interval = setInterval(() => {
-                // loadParticipants(currentSession.id);
             }, 3000);
 
             return () => clearInterval(interval);
         }
     }, [currentSession]);
-
-    const loadUsers = async () => {
-        try {
-            const response = await fetch("/api/teams");
-            if (response.ok) {
-                const usersData = await response.json();
-                setUsers(usersData);
-            }
-        } catch (error) {
-            console.error("Error loading users:", error);
-        }
-    };
 
     const checkForActiveSession = async () => {
         try {
@@ -126,10 +108,11 @@ export default function EchoPrompt() {
                 );
 
                 if (activeSession) {
+                    console.log('found active session', activeSession)
                     setCurrentSession(activeSession);
                 } else {
+                    console.log('no active session')
                     setCurrentSession(null);
-                    setIsJoined(false);
                 }
             }
         } catch (error) {
@@ -139,27 +122,37 @@ export default function EchoPrompt() {
         }
     };
 
-    // const loadParticipants = async (sessionId: string) => {
-    //     try {
-    //         const response = await fetch(`/api/quiz-sessions/${sessionId}/participants`);
-    //         if (response.ok) {
-    //             const data = await response.json();
-    //             setParticipants(data);
-    //         }
-    //     } catch (error) {
-    //         console.error("Error loading participants:", error);
-    //     }
-    // };
+    const joinSession = async (session?: Session | null) => {
+        if (isJoined) {
+            return;
+        }
 
-    const joinSession = async () => {
-        if (!currentUser || !currentSession) {
-            showToastMessage("Please select a user first", "error");
+        const targetSession = session || currentSession;
+
+        if (!currentUser || !targetSession) {
+            showToastMessage("You must be logged in to join", "error");
             return;
         }
 
         try {
+            const checkResponse = await fetch(
+                `/api/prompt-session/${targetSession.id}/participants`
+            );
+
+            if (checkResponse.ok) {
+                const participants = await checkResponse.json();
+                const isAlreadyParticipant = participants.find(
+                    (participant: any) => participant.userId === currentUser.id
+                );
+
+                if (isAlreadyParticipant) {
+                    setIsJoined(true);
+                    return; // No need to show toast or join again
+                }
+            }
+
             const response = await fetch(
-                `/api/prompt-session/${currentSession.id}/participants`,
+                `/api/prompt-session/${targetSession.id}/participants`,
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -169,7 +162,6 @@ export default function EchoPrompt() {
 
             if (response.ok) {
                 setIsJoined(true);
-
                 showToastMessage("Successfully joined the session!", "success");
             } else {
                 showToastMessage("Failed to join session", "error");
@@ -295,6 +287,17 @@ export default function EchoPrompt() {
         }
     };
 
+    if (isSessionLoading) {
+        return (
+            <div className="min-h-screen bg-gray-900 text-gray-100 py-10 px-4 flex items-center justify-center">
+                <div className="bg-gray-800 rounded-lg shadow-lg p-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600 mx-auto mb-4"></div>
+                    <p className="text-gray-300">Loading Session...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gray-900 text-gray-100 py-10 px-4 flex items-center justify-center">
             {showToast && (
@@ -319,64 +322,37 @@ export default function EchoPrompt() {
                                 Session Status:
                             </span>
                             <span
-                                className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                    currentSession?.action === "live"
-                                        ? "bg-green-900/50 text-green-200"
-                                        : currentSession?.action === "pending"
+                                className={`px-3 py-1 rounded-full text-sm font-medium ${currentSession?.action === "live"
+                                    ? "bg-green-900/50 text-green-200"
+                                    : currentSession?.action === "pending"
                                         ? "bg-yellow-900/40 text-yellow-200"
                                         : "bg-gray-700 text-gray-300"
-                                }`}
+                                    }`}
                             >
                                 {currentSession?.action === "live"
                                     ? "LIVE"
                                     : currentSession?.action === "pending"
-                                    ? "PENDING"
-                                    : "NO ACTIVE SESSION"}
+                                        ? "PENDING"
+                                        : "NO ACTIVE SESSION"}
                             </span>
                         </div>
                     </div>
 
-                    {/* User Selection */}
+                    {/* User Info */}
                     <div className="flex items-center gap-4 flex-wrap mb-4">
                         <span className="text-sm text-gray-300">
-                            Playing as:
+                            Logged in as:
                         </span>
-                        <div className="relative">
-                            <button
-                                onClick={() =>
-                                    setUserDropdownOpen(!userDropdownOpen)
-                                }
-                                className="flex items-center gap-2 px-4 py-2 bg-gray-700 border border-gray-500 rounded-lg text-sm font-medium text-white hover:bg-gray-600 transition-colors"
-                            >
-                                {currentUser?.name || "Select User"}
-                                <ChevronDown className="h-4 w-4" />
-                            </button>
-
-                            {userDropdownOpen && (
-                                <div className="absolute top-full left-0 mt-1 bg-gray-800 border border-gray-600 rounded-md shadow-lg z-10 min-w-48">
-                                    {users.map((user) => (
-                                        <button
-                                            key={user.id}
-                                            onClick={() => {
-                                                setCurrentUser(user);
-                                                setUserDropdownOpen(false);
-                                                setIsJoined(false);
-                                            }}
-                                            className="block w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                                        >
-                                            {user.name}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
+                        <span className="px-4 py-2 bg-gray-700 border border-gray-500 rounded-lg text-sm font-medium text-white">
+                            {currentUser?.name || "Not logged in"}
+                        </span>
                     </div>
 
                     {/* Join Session Button */}
                     {currentSession && !isJoined && currentUser && (
                         <div className="flex items-center gap-4">
                             <button
-                                onClick={joinSession}
+                                onClick={() => joinSession()}
                                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-600 to-pink-800 text-white text-sm rounded-md hover:from-pink-700 hover:to-pink-900 transition-all"
                             >
                                 <Play className="h-4 w-4" />
@@ -406,7 +382,6 @@ export default function EchoPrompt() {
                 </div>
 
                 {/* Main Form */}
-
                 {isJoined && (
                     <form
                         onSubmit={handleSubmit}
@@ -423,13 +398,12 @@ export default function EchoPrompt() {
 
                             <div
                                 className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-all duration-300 font-mono text-sm
-                    ${
-                        errors.file
-                            ? "border-red-600 bg-red-900/20"
-                            : file
-                            ? "border-green-600 bg-green-900/20"
-                            : "border-gray-600 hover:border-pink-500"
-                    }
+                    ${errors.file
+                                        ? "border-red-600 bg-red-900/20"
+                                        : file
+                                            ? "border-green-600 bg-green-900/20"
+                                            : "border-gray-600 hover:border-pink-500"
+                                    }
                   `}
                                 onDrop={handleDrop}
                                 onDragOver={handleDragOver}
@@ -501,11 +475,10 @@ export default function EchoPrompt() {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className={`w-full bg-gradient-to-r from-pink-600 to-pink-900 ${
-                                isSubmitting
-                                    ? "opacity-70 cursor-not-allowed"
-                                    : "hover:from-pink-700 hover:to-pink-800"
-                            } text-white py-2.5 px-4 rounded-md font-semibold tracking-wide transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-pink-600 font-mono uppercase text-sm`}
+                            className={`w-full bg-gradient-to-r from-pink-600 to-pink-900 ${isSubmitting
+                                ? "opacity-70 cursor-not-allowed"
+                                : "hover:from-pink-700 hover:to-pink-800"
+                                } text-white py-2.5 px-4 rounded-md font-semibold tracking-wide transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-pink-600 font-mono uppercase text-sm`}
                         >
                             {isSubmitting ? "UPLOADING..." : "SUBMIT "}
                         </button>
@@ -514,6 +487,14 @@ export default function EchoPrompt() {
                             Max 20MB • JPG/PNG only
                         </div>
                     </form>
+                )}
+
+                {/* Not Logged In Message */}
+                {!currentUser && (
+                    <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 text-center">
+                        <h2 className="text-xl font-semibold text-white mb-3">You're not logged in</h2>
+                        <p className="text-gray-300 mb-4">Please log in to participate in prompt sessions</p>
+                    </div>
                 )}
             </div>
         </div>

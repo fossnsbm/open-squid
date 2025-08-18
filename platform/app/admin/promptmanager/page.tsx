@@ -1,8 +1,10 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
 import Toast from "@/app/components/common/Toast";
-import { Play,Trash2, Image as ImageIcon } from "lucide-react";
+import { Play,Trash2, Image as ImageIcon, ShieldAlert, Loader2 } from "lucide-react";
 
 interface Submission {
     sessionId: string;
@@ -24,6 +26,22 @@ interface Session {
 
 
 export default function EchoPromptDashboard() {
+    const { data: session, isPending: isSessionLoading } = useSession();
+    const router = useRouter();
+    const [authChecked, setAuthChecked] = useState(false);
+
+    useEffect(() => {
+        if (!isSessionLoading) {
+            if (!session) {
+                router.push("/admin/login");
+            } else if (session.user?.role !== "admin") {
+                router.push("/admin/login");
+            } else {
+                setAuthChecked(true);
+            }
+        }
+    }, [session, isSessionLoading, router]);
+
     const [selectedSubmission, setSelectedSubmission] =  useState<Submission | null>(null);
     const [promptState, setPromptState] = useState<{
         isLive: boolean;
@@ -64,6 +82,8 @@ export default function EchoPromptDashboard() {
 
     
     const loadSubmissions = async () => {
+        if (!authChecked) return;
+        
         try {
             const res = await fetch("/api/prompt-submission");
             const submissionsData = await res.json();
@@ -78,17 +98,19 @@ export default function EchoPromptDashboard() {
     };
 
     useEffect(() => {
-        loadSubmissions();
-
-        const interval = setInterval(() => {
-            if (promptState.isLive) {
-                // loadSession();
-                loadSubmissions();
-            }
-        }, 2000);
-
-        return () => clearInterval(interval);
-    }, [promptState.isLive]);
+        if (authChecked && session?.user?.role === "admin") {
+            loadSubmissions();
+            
+            const interval = setInterval(() => {
+                if (promptState.isLive) {
+                    // loadSession();
+                    loadSubmissions();
+                }
+            }, 2000);
+            
+            return () => clearInterval(interval);
+        }
+    }, [authChecked, session, promptState.isLive]);
 
     const startSession = async () => {
         try {
@@ -229,6 +251,44 @@ export default function EchoPromptDashboard() {
             showToastMessage("Failed to update score", "error");
         }
     };
+
+    if (isSessionLoading || (session && !authChecked)) {
+        return (
+            <div className="snap-end min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+                <div className="bg-gray-800 rounded-lg shadow-lg p-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600 mx-auto mb-4"></div>
+                    <p className="text-gray-300">Verifying access permissions...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!session || !authChecked) {
+        return (
+            <div className="snap-end min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+                <div className="bg-gray-800 rounded-lg shadow-lg p-8 text-center max-w-md">
+                    <ShieldAlert className="h-16 w-16 text-red-500 mx-auto mb-4" />
+                    <h2 className="text-xl text-white font-bold mb-2">Access Restricted</h2>
+                    <p className="text-gray-300 mb-4">
+                        This area is only accessible to administrators.
+                        Redirecting to login page...
+                    </p>
+                    <div className="animate-pulse bg-gray-700 h-1 w-full rounded"></div>
+                </div>
+            </div>
+        );
+    }
+
+    if (loading) {
+        return (
+            <div className="snap-end min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center pt-20 pb-20">
+                <div className="bg-gray-800 rounded-lg shadow-lg p-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600 mx-auto mb-4"></div>
+                    <p className="text-gray-300">Loading Admin Panel...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex items-center justify-center px-4 font-squid min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 pt-10 pb-20 uppercase">
