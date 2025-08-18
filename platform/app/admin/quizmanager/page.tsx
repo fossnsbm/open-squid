@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
 import {
     Play,
     Square,
@@ -16,6 +18,7 @@ import {
     PlusCircle,
     Calendar,
     ListFilter,
+    ShieldAlert,
 } from "lucide-react";
 import Toast from "@/app/components/common/Toast";
 
@@ -61,6 +64,29 @@ interface QuizState {
 }
 
 export default function QuizManage() {
+    // Authentication and role check
+    const { data: session, isPending: isSessionLoading } = useSession();
+    const router = useRouter();
+    const [authChecked, setAuthChecked] = useState(false);
+
+    // Check if user is authenticated and is an admin
+    useEffect(() => {
+        if (!isSessionLoading) {
+            if (!session) {
+                // User is not authenticated, redirect to login
+                console.log("User is not authenticated, redirecting to login");
+                router.push("/admin/login");
+            } else if (session.user?.role !== "admin") {
+                // User is authenticated but not an admin
+                console.log("User is not an admin, redirecting to login");
+                router.push("/admin/login");
+            } else {
+                // User is authenticated and is an admin
+                setAuthChecked(true);
+            }
+        }
+    }, [session, isSessionLoading, router]);
+
     const [questions, setQuestions] = useState<Question[]>([]);
     const [users, setUsers] = useState<User[]>([]);
     const [participants, setParticipants] = useState<QuizParticipant[]>([]);
@@ -98,10 +124,12 @@ export default function QuizManage() {
         setShowToast({ message, type });
     };
 
-    // Load initial data
+    // Load initial data only after authentication is checked
     useEffect(() => {
-        loadData();
-    }, []);
+        if (authChecked && session?.user?.role === "admin") {
+            loadData();
+        }
+    }, [authChecked, session]);
 
     // Monitor quiz session and participants
     useEffect(() => {
@@ -568,6 +596,36 @@ export default function QuizManage() {
 
     // const regularUsers = users.filter((user) => !user.email?.includes("admin"));
     const currentQuestion = questions[quizState.currentQuestionIndex];
+
+    // Display loading state while checking authentication
+    if (isSessionLoading || (session && !authChecked)) {
+        return (
+            <div className="snap-end min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+                <div className="bg-gray-800 rounded-lg shadow-lg p-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600 mx-auto mb-4"></div>
+                    <p className="text-gray-300">Verifying access permissions...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // If authentication check is done and user is not authenticated or not admin, 
+    // we'll redirect them, but show a message until the redirection happens
+    if (!session || !authChecked) {
+        return (
+            <div className="snap-end min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+                <div className="bg-gray-800 rounded-lg shadow-lg p-8 text-center max-w-md">
+                    <ShieldAlert className="h-16 w-16 text-red-500 mx-auto mb-4" />
+                    <h2 className="text-xl text-white font-bold mb-2">Access Restricted</h2>
+                    <p className="text-gray-300 mb-4">
+                        This area is only accessible to administrators. 
+                        Redirecting to login page...
+                    </p>
+                    <div className="animate-pulse bg-gray-700 h-1 w-full rounded"></div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="snap-end min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 pt-10 pb-20 px-4 font-squid uppercase">
