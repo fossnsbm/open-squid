@@ -13,7 +13,6 @@ import {
     UserPlus,
     RefreshCw
 } from "lucide-react";
-import { useSession } from "@/lib/auth-client";
 
 interface Question {
     id: string;
@@ -32,16 +31,7 @@ interface QuizSession {
     participant_count?: number;
 }
 
-export default function QuizSurvival() {
-    const { data: session, isPending: isSessionLoading } = useSession();
-    const currentUser = session?.user;
-    const router = useRouter();
-
-    useEffect(() => {
-        if (!isSessionLoading && session === null) {
-            router.push("/login");
-        }
-    }, [session, isSessionLoading, router]);
+export default function QuizSurvival({ currentUser, isSessionLoading }: any) {
 
     const [questions, setQuestions] = useState<Question[]>([]);
     const [availableSessions, setAvailableSessions] = useState<QuizSession[]>([]);
@@ -74,7 +64,7 @@ export default function QuizSurvival() {
     }, []);
 
     useEffect(() => {
-                  
+
         if (currentSession && currentSession.status === "live") {
             const sessionQuestionIndex =
                 currentSession.currentQuestionIndex || 0;
@@ -103,7 +93,7 @@ export default function QuizSurvival() {
             interval = setInterval(() => {
                 setTimeLeft((prev) => {
                     if (prev <= 1) {
-                        
+
                         return 0;
                     }
                     return prev - 1;
@@ -113,10 +103,10 @@ export default function QuizSurvival() {
 
         return () => clearInterval(interval);
     }, [currentSession, timeLeft, hasAnswered]);
-    
+
     useEffect(() => {
         if (timeLeft === 0 && !hasAnswered && currentSession?.status === "live") {
-            
+
             const submissionTimeout = setTimeout(() => {
                 if (selectedAnswer !== null) {
                     submitAnswer(selectedAnswer);
@@ -126,7 +116,7 @@ export default function QuizSurvival() {
                     showToast("Time's up! No answer selected", "error");
                 }
             }, 500); // Short delay for visual feedback
-            
+
             return () => clearTimeout(submissionTimeout);
         }
     }, [timeLeft, hasAnswered, selectedAnswer, currentSession]);
@@ -139,12 +129,12 @@ export default function QuizSurvival() {
             if (questionsRes.ok) {
                 try {
                     const questionsData = await questionsRes.json();
-                    
+
                     if (!questionsData || !Array.isArray(questionsData)) {
                         showToast("Failed to load questions data", "error");
                         return;
                     }
-                    
+
                     setQuestions(questionsData);
                 } catch (err) {
                     showToast("Failed to process questions data", "error");
@@ -154,7 +144,7 @@ export default function QuizSurvival() {
             }
 
             await loadAvailableSessions();
-            
+
         } catch (error) {
             showToast("Failed to load initial data", "error");
         } finally {
@@ -177,7 +167,7 @@ export default function QuizSurvival() {
                 } catch (err) {
                     return;
                 }
-                
+
                 const pendingSessions = sessions.filter(
                     (s: QuizSession) => s?.status === "pending"
                 );
@@ -192,17 +182,17 @@ export default function QuizSurvival() {
 
                 if (liveSession) {
                     setCurrentSession(liveSession);
-                    
+
                     if (currentUser && !isJoined && liveSession) {
                         joinQuiz(liveSession.id);
                     }
-                    
+
                     const sessionQuestionIndex = liveSession?.currentQuestionIndex || 0;
                     setCurrentQuestionIndex(sessionQuestionIndex);
                     setTimeLeft(liveSession?.timePerQuestion || 10);
                     setSelectedAnswer(null);
                     setHasAnswered(false);
-                } 
+                }
                 else if (completedSession) {
                     setCurrentSession(completedSession);
                 }
@@ -219,17 +209,17 @@ export default function QuizSurvival() {
 
     useEffect(() => {
         let intervalId: NodeJS.Timeout | undefined;
-        
-        
+
+
         if (isJoined && currentSession?.status === "pending" && currentSession) {
-            
+
             intervalId = setInterval(() => {
                 if (currentSession) {  // Add null check
                     refreshCurrentSession(currentSession.id);
                 }
             }, 3000);
         }
-        
+
         return () => {
             if (intervalId) {
                 clearInterval(intervalId);
@@ -239,14 +229,14 @@ export default function QuizSurvival() {
 
     const refreshCurrentSession = async (sessionId: string) => {
         try {
-            
+
             const response = await fetch(`/api/quiz-sessions/active`, {
                 headers: {
                     'Cache-Control': 'no-cache',
                     'Pragma': 'no-cache'
                 }
             });
-            
+
             if (response.ok) {
                 let updatedSession;
                 try {
@@ -254,20 +244,20 @@ export default function QuizSurvival() {
                     if (!updatedSession) {
                         return;
                     }
-                    
+
                     setCurrentSession(updatedSession);
-                    
+
                 } catch (err) {
                     return;
                 }
-                
+
                 if (updatedSession?.status === "live" && currentSession?.status === "pending") {
-                    
+
                     setCurrentQuestionIndex(updatedSession?.currentQuestionIndex || 0);
                     setTimeLeft(updatedSession?.timePerQuestion || 10);
                     setSelectedAnswer(null);
                     setHasAnswered(false);
-                    
+
                     showToast("The quiz has started!", "success");
                 }
             } else {
@@ -284,7 +274,7 @@ export default function QuizSurvival() {
 
         try {
             const targetSession = availableSessions.find(s => s.id === sessionId) || currentSession;
-            
+
             if (!targetSession) {
                 showToast("Quiz session not found", "error");
                 return;
@@ -303,7 +293,7 @@ export default function QuizSurvival() {
                 setIsJoined(true);
                 setCurrentSession(targetSession);
                 showToast("Successfully joined the quiz!", "success");
-                
+
                 refreshCurrentSession(sessionId);
             } else {
                 showToast("Failed to join quiz", "error");
@@ -318,7 +308,7 @@ export default function QuizSurvival() {
             return;
 
         setSelectedAnswer(answerIndex);
-            
+
         try {
             const isCorrect = answerIndex === currentQuestion.correctAnswer;
 
@@ -335,12 +325,12 @@ export default function QuizSurvival() {
                         (currentSession?.timePerQuestion || 10) - timeLeft,
                 }),
             });
-            
+
             let scoreUpdateRequest = Promise.resolve(new Response());
             if (isCorrect) {
                 const currentScore = userScore + 10; // Calculate new score
                 scoreUpdateRequest = fetch(
-                    `/api/quiz-sessions/${currentSession.id}/participants/${currentUser.id}`, 
+                    `/api/quiz-sessions/${currentSession.id}/participants/${currentUser.id}`,
                     {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
@@ -350,7 +340,7 @@ export default function QuizSurvival() {
                     }
                 );
             }
-            
+
             const [response, scoreResponse] = await Promise.all([
                 answerRequest,
                 scoreUpdateRequest
@@ -362,7 +352,7 @@ export default function QuizSurvival() {
 
                 if (isCorrect) {
                     setUserScore(prev => prev + 10); // Updating by 10 points for each correct answer
-                    
+
                     if (!scoreResponse.ok) {
                     } else {
                     }
@@ -436,8 +426,8 @@ export default function QuizSurvival() {
                                 className="px-3 py-1 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm rounded-md hover:from-gray-700 hover:to-gray-800 transition-all flex items-center gap-1"
                                 disabled={refreshing}
                             >
-                                {refreshing ? 
-                                    <Loader2 className="h-3 w-3 animate-spin" /> : 
+                                {refreshing ?
+                                    <Loader2 className="h-3 w-3 animate-spin" /> :
                                     <RefreshCw className="h-3 w-3" />
                                 }
                                 <span>Refresh</span>
@@ -501,8 +491,8 @@ export default function QuizSurvival() {
                                             : currentSession?.status === "pending"
                                                 ? "bg-blue-900/40 text-blue-200"
                                                 : currentSession?.status === "completed"
-                                                ? "bg-yellow-900/40 text-yellow-200"
-                                                : "bg-gray-700 text-gray-300"
+                                                    ? "bg-yellow-900/40 text-yellow-200"
+                                                    : "bg-gray-700 text-gray-300"
                                             }`}
                                     >
                                         {currentSession?.status === "live"
@@ -510,8 +500,8 @@ export default function QuizSurvival() {
                                             : currentSession?.status === "pending"
                                                 ? "WAITING TO START"
                                                 : currentSession?.status === "completed"
-                                                ? "COMPLETED"
-                                                : "WAITING"}
+                                                    ? "COMPLETED"
+                                                    : "WAITING"}
                                     </span>
                                 </div>
 
@@ -521,7 +511,7 @@ export default function QuizSurvival() {
                                         {questions.length}
                                     </div>
                                 )}
-                                
+
                                 {currentSession?.status === "pending" && !isJoined && currentSession && (
                                     <button
                                         onClick={() => joinQuiz(currentSession.id)}
@@ -531,7 +521,7 @@ export default function QuizSurvival() {
                                     </button>
                                 )}
                             </div>
-                            
+
                             {currentSession?.title && (
                                 <div className="mt-2 text-lg font-medium text-white">
                                     {currentSession.title}
@@ -570,7 +560,7 @@ export default function QuizSurvival() {
                                 </button>
                             </div>
                         )}
-                    
+
                         {/* Waiting for quiz to start */}
                         {currentSession?.status === "pending" && isJoined && (
                             <div className="flex items-center justify-center gap-2 text-sm text-gray-400 mt-2">
@@ -679,11 +669,10 @@ export default function QuizSurvival() {
                                     </div>
 
                                     {/* Show answer status information */}
-                                    <div className={`p-4 border rounded-lg text-center ${
-                                        hasAnswered 
-                                            ? "border-green-600 bg-gray-700" 
-                                            : "border-gray-600 bg-gray-700/50"
-                                    }`}>
+                                    <div className={`p-4 border rounded-lg text-center ${hasAnswered
+                                        ? "border-green-600 bg-gray-700"
+                                        : "border-gray-600 bg-gray-700/50"
+                                        }`}>
                                         {hasAnswered ? (
                                             <>
                                                 <CheckCircle className="h-6 w-6 text-green-400 mx-auto mb-2" />
@@ -694,10 +683,10 @@ export default function QuizSurvival() {
                                             <>
                                                 <Clock className="h-6 w-6 text-pink-400 mx-auto mb-2" />
                                                 <p className="text-gray-300">
-                                                    {!isJoined 
-                                                        ? "Join the quiz to answer" 
-                                                        : selectedAnswer !== null 
-                                                            ? "Answer selected - you can change until time's up" 
+                                                    {!isJoined
+                                                        ? "Join the quiz to answer"
+                                                        : selectedAnswer !== null
+                                                            ? "Answer selected - you can change until time's up"
                                                             : "Select your answer before time runs out"}
                                                 </p>
                                                 {timeLeft > 0 ? (

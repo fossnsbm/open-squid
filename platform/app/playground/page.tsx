@@ -1,9 +1,22 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EchoPrompt from "../components/playground/EchoPrompt";
 import Toast from "../components/common/Toast";
 import QuizSurvival from "../components/playground/QuizSurvival";
+import { useSession } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+
 export default function GameSelection() {
+
+    const { data: session, isPending: isSessionLoading } = useSession();
+    const currentUser = session?.user;
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!isSessionLoading && session === null) {
+            router.push("/login");
+        }
+    }, [session, isSessionLoading, router]);
 
     const [showToast, setShowToast] = useState<{
         message: string;
@@ -60,7 +73,7 @@ export default function GameSelection() {
                     </div>
 
                     <div className="boarder-1 bg-pink-700 rounded-xl shadow-lg p-0.5 transition-all duration-500">
-                        {activeGame === "quiz survival" && <QuizSurvival />}
+                        {activeGame === "quiz survival" && <QuizSurvival currentUser={currentUser} isSessionLoading={isSessionLoading} />}
                         {activeGame === "echo prompt" && <EchoPrompt />}
                         {activeGame === "squid clue" && <Game3Section />}
                     </div>
