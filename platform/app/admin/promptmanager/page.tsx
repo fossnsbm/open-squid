@@ -292,7 +292,7 @@ export default function EchoPromptDashboard() {
 
     return (
         <div className="flex items-center justify-center px-4 font-squid min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 pt-10 pb-20 uppercase">
-            {/* Modal for viewing submission */}
+           
             {selectedSubmission && (
                 <div
                     className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4"

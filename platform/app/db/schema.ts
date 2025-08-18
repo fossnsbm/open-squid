@@ -189,4 +189,14 @@ export const userAnswers = pgTable('user_answers', {
 })
 
  
+export const puzzleMarks = pgTable('puzzle_marks', {
+  id: text('id').primaryKey(),
+  userId: text('user_id')
+      .references(() => teams.id, { onDelete: 'cascade' })
+      .notNull(),
+  score: integer('score').default(0),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+
+})
 
