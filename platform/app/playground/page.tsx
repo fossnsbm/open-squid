@@ -3,7 +3,7 @@ import { useState } from "react";
 import EchoPrompt from "../components/playground/EchoPrompt";
 import Toast from "../components/common/Toast";
 import QuizManage from "../components/admin/QuizManage";
-import QuizSurvival from "../components/playground/QuizServival";
+import QuizSurvival from "../components/playground/QuizSurvival";
 export default function GameSelection() {
 
   const [showToast, setShowToast] = useState<{
