@@ -4,8 +4,11 @@ import {
   timestamp,
   boolean,
   integer,
-  jsonb,
   varchar,
+  jsonb,
+  uuid,
+  primaryKey,
+
 } from "drizzle-orm/pg-core";
 
 export const teams = pgTable("teams", {
@@ -62,6 +65,7 @@ export const accounts = pgTable("accounts", {
   updatedAt: timestamp("updated_at").notNull(),
 });
 
+
 export const verifications = pgTable("verifications", {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),
@@ -89,6 +93,7 @@ export const questions = pgTable("questions", {
 });
 
 
+  
 export const promptSessions = pgTable("prompt_sessions", {
   id: text("id").primaryKey(),
   title: text("title").notNull(), 
@@ -109,14 +114,37 @@ export const promptParticipants = pgTable('prompt_participants', {
   id: text('id').primaryKey(),
   promptSessionId: text('prompt_session_id')
    .references(() => promptSessions.id, { onDelete: 'cascade' })
+  
+  
+export const quizSessions = pgTable('quiz_sessions', {
+  id: text('id').primaryKey(),
+  title: varchar('title', { length: 255 }),
+  status: varchar('status', { length: 20 }).default('pending'), 
+  currentQuestionIndex: integer('current_question_index').default(0),
+  timePerQuestion: integer('time_per_question').default(10),
+  totalQuestions: integer('total_questions'),
+  startedAt: timestamp('started_at'),
+  endedAt: timestamp('ended_at'),
+  createdAt: timestamp("created_at").$defaultFn(
+    () => /* @__PURE__ */ new Date(),
+  ),
+})
+
+
+export const quizParticipants = pgTable('quiz_participants', {
+  id: text('id').primaryKey(),
+  quizSessionId: text('quiz_session_id')
+   .references(() => quizSessions.id, { onDelete: 'cascade' })
    .notNull(),
   userId: text('user_id')
    .references(() => teams.id, { onDelete: 'cascade' })
    .notNull(),
   score: integer('score').default(0),
   updatedAt: timestamp('updated_at').defaultNow(),
+  totalQuestionsAnswered: integer('total_questions_answered').default(0),
   joinedAt: timestamp('joined_at').defaultNow(),
 })
+
 
 
 export const userPrompts = pgTable('user_prompts', {
@@ -134,3 +162,25 @@ export const userPrompts = pgTable('user_prompts', {
   description: text('description').notNull(),
   createdAt: timestamp('created_at').defaultNow(),
 })
+
+  
+
+export const userAnswers = pgTable('user_answers', {
+  id: text('id').primaryKey(),
+  userId: text('user_id')
+      .references(() => teams.id, { onDelete: 'cascade' })
+      .notNull(),
+  quizSessionId: text('quiz_session_id')
+  .references(() => quizSessions.id, { onDelete: 'cascade' })
+  .notNull(),
+  questionId: text('question_id')
+  .references(() => questions.id, { onDelete: 'cascade' })
+  .notNull(),
+  selectedAnswer: integer('selected_answer').notNull(),
+  isCorrect: boolean('is_correct').notNull(),
+  responseTime: integer('response_time'), // in seconds
+  answeredAt: timestamp('answered_at').defaultNow(),
+})
+
+ 
+
