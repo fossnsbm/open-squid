@@ -74,7 +74,7 @@ export default function GameSelection() {
 
                     <div className="boarder-1 bg-pink-700 rounded-xl shadow-lg p-0.5 transition-all duration-500">
                         {activeGame === "quiz survival" && <QuizSurvival currentUser={currentUser} isSessionLoading={isSessionLoading} />}
-                        {activeGame === "echo prompt" && <EchoPrompt />}
+                        {activeGame === "echo prompt" && <EchoPrompt currentUser={currentUser} isSessionLoading={isSessionLoading} />}
                         {activeGame === "squid clue" && <Game3Section />}
                     </div>
                 </div>
