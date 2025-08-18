@@ -5,8 +5,8 @@ import {
   boolean,
   integer,
   jsonb,
+  varchar,
 } from "drizzle-orm/pg-core";
-
 
 export const teams = pgTable("teams", {
   id: text("id").primaryKey(),
@@ -88,3 +88,49 @@ export const questions = pgTable("questions", {
   ),
 });
 
+
+export const promptSessions = pgTable("prompt_sessions", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(), 
+  action: varchar('action', { length: 20 }).default('pending'),
+  duration: integer("duration"), 
+  startedAt: timestamp("started_at"),
+  endedAt: timestamp("ended_at"),
+  createdAt: timestamp("created_at").$defaultFn(
+    () => /* @__PURE__ */ new Date(),
+  ),
+  updatedAt: timestamp("updated_at").$defaultFn(
+    () => /* @__PURE__ */ new Date(),
+  ),
+});
+
+
+export const promptParticipants = pgTable('prompt_participants', {
+  id: text('id').primaryKey(),
+  promptSessionId: text('prompt_session_id')
+   .references(() => promptSessions.id, { onDelete: 'cascade' })
+   .notNull(),
+  userId: text('user_id')
+   .references(() => teams.id, { onDelete: 'cascade' })
+   .notNull(),
+  score: integer('score').default(0),
+  updatedAt: timestamp('updated_at').defaultNow(),
+  joinedAt: timestamp('joined_at').defaultNow(),
+})
+
+
+export const userPrompts = pgTable('user_prompts', {
+  id: text('id').primaryKey(),
+  userId: text('user_id')
+      .references(() => teams.id, { onDelete: 'cascade' })
+      .notNull(),
+  sessionId: text('session_id')
+  .references(() => promptSessions.id, { onDelete: 'cascade' })
+  .notNull(),
+  userName: text('user_name')
+   .references(() => teams.name, { onDelete: 'cascade' })  
+  .notNull(),
+  imageUrl: text('image_url').notNull(),
+  description: text('description').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+})
