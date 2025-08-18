@@ -82,16 +82,14 @@ export default function LeaderboardPage() {
                                     <h2 className="font-bold text-xl mt-4">
                                         {entry.name}
                                     </h2>
-                                    <p
-                                        className={`
-                        font-black text-3xl mt-1
+                                    <p className={`font-black text-3xl mt-1
                         ${isGold ? "text-yellow-900" : ""}
                         ${isSilver ? "text-gray-900" : ""}
                         ${isBronze ? "text-orange-100" : ""}
-                      `}
-                                    >
+                      `}>
                                         {entry.score}
                                     </p>
+
                                     <p className="text-sm opacity-90">Points</p>
                                 </div>
                             );
@@ -137,10 +135,9 @@ export default function LeaderboardPage() {
                     </div>
 
                     <div className="bg-gray-900/50 px-6 py-4 text-center border-t border-gray-700">
-                        <p className="text-gray-500 text-xs">
-                            Last updated: {new Date().toLocaleTimeString()}
-                        </p>
+                        <p className="text-gray-500 text-xs"> Last updated: {new Date().toLocaleTimeString()}  </p>
                     </div>
+                    
                 </div>
 
                 <div className="fixed -z-10 pointer-events-none">
