@@ -127,17 +127,17 @@ function AdminContent({ session }: { session: Session }) {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <ChallengeCard
                                 title="PUZZLE"
-                                link="#"
+                                link="/admin/puzzlemanager"
                                 imgUrl="/games/circle.png"
                             />
                             <ChallengeCard
                                 title="QUESTIONNAIRE"
-                                link="#"
+                                link="/admin/quizmanager"
                                 imgUrl="/games/triangle.png"
                             />
                             <ChallengeCard
                                 title="AI_PROMPT"
-                                link="#"
+                                link="/admin/promptmanager"
                                 imgUrl="/games/square.png"
                             />
                         </div>
