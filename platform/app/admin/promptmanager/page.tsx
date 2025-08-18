@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import Toast from "../common/Toast";
+import Toast from "@/app/components/common/Toast";
 import { Play,Trash2, Image as ImageIcon } from "lucide-react";
 
 interface Submission {

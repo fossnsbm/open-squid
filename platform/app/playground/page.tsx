@@ -2,8 +2,8 @@
 import { useState } from "react";
 import EchoPrompt from "../components/playground/EchoPrompt";
 import Toast from "../components/common/Toast";
-import EchoPromptDashboard from "../components/admin/PromptManage";
 import QuizManage from "../components/admin/QuizManage";
+import QuizSurvival from "../components/playground/QuizServival";
 export default function GameSelection() {
 
   const [showToast, setShowToast] = useState<{
@@ -62,14 +62,14 @@ export default function GameSelection() {
         </div>
     
         <div className="boarder-1 bg-pink-700 rounded-xl shadow-lg p-0.5 transition-all duration-500">
-          {activeGame === "quiz survival" && <Game1Section />}
+          {activeGame === "quiz survival" && <QuizSurvival />}
           {activeGame === "echo prompt" && <EchoPrompt />}
           {activeGame === "squid clue" && <Game3Section />}
         </div>
       </div>
 
-       <EchoPromptDashboard />
-       <QuizManage />
+       {/* 
+       <QuizManage /> */}
     </div>
     </div>
   );

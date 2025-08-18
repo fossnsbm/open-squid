@@ -147,7 +147,6 @@ export const quizParticipants = pgTable('quiz_participants', {
    .references(() => teams.id, { onDelete: 'cascade' })
    .notNull(),
   score: integer('score').default(0),
-  updatedAt: timestamp('updated_at').defaultNow(),
   totalQuestionsAnswered: integer('total_questions_answered').default(0),
   joinedAt: timestamp('joined_at').defaultNow(),
 })

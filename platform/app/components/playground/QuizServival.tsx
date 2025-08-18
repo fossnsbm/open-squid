@@ -32,7 +32,7 @@ interface QuizSession {
     participant_count?: number;
 }
 
-export default function LiveQuizPage() {
+export default function QuizSurvival() {
     const { data: session, isPending: isSessionLoading } = useSession();
     const currentUser = session?.user;
     const router = useRouter();
