@@ -64,24 +64,17 @@ interface QuizState {
 }
 
 export default function QuizManage() {
-    // Authentication and role check
     const { data: session, isPending: isSessionLoading } = useSession();
     const router = useRouter();
     const [authChecked, setAuthChecked] = useState(false);
 
-    // Check if user is authenticated and is an admin
     useEffect(() => {
         if (!isSessionLoading) {
             if (!session) {
-                // User is not authenticated, redirect to login
-                console.log("User is not authenticated, redirecting to login");
                 router.push("/admin/login");
             } else if (session.user?.role !== "admin") {
-                // User is authenticated but not an admin
-                console.log("User is not an admin, redirecting to login");
                 router.push("/admin/login");
             } else {
-                // User is authenticated and is an admin
                 setAuthChecked(true);
             }
         }
@@ -114,24 +107,20 @@ export default function QuizManage() {
         correctAnswer: 0,
     });
 
-    // New state for session creation
     const [isCreatingSession, setIsCreatingSession] = useState(false);
     const [newSessionTitle, setNewSessionTitle] = useState("");
     const [newSessionTimePerQuestion, setNewSessionTimePerQuestion] = useState(10);
 
-    // Toast function
     const showToastMessage = (message: string, type: "success" | "error") => {
         setShowToast({ message, type });
     };
 
-    // Load initial data only after authentication is checked
     useEffect(() => {
         if (authChecked && session?.user?.role === "admin") {
             loadData();
         }
     }, [authChecked, session]);
 
-    // Monitor quiz session and participants
     useEffect(() => {
         let interval: NodeJS.Timeout;
         if (currentSession && quizState.isLive) {
@@ -142,7 +131,6 @@ export default function QuizManage() {
         return () => clearInterval(interval);
     }, [currentSession, quizState.isLive]);
 
-    // Timer for quiz questions - only counts down, doesn't auto-advance
     useEffect(() => {
         let interval: NodeJS.Timeout;
 
@@ -162,7 +150,6 @@ export default function QuizManage() {
         return () => clearInterval(interval);
     }, [quizState.isLive, quizState.timeLeft, quizState.isFinished]);
     
-    // Track participant responses for current question
     const [responsesForCurrentQuestion, setResponsesForCurrentQuestion] = useState(0);
     
     useEffect(() => {
@@ -180,7 +167,6 @@ export default function QuizManage() {
                         setResponsesForCurrentQuestion(answersData.length);
                     }
                 } catch (error) {
-                    console.error("Error fetching response data:", error);
                 }
             };
             
@@ -214,7 +200,6 @@ export default function QuizManage() {
                 const sessionsData = await sessionsRes.json();
                 setQuizSessions(sessionsData);
                 
-                // Check for any live sessions
                 const liveSession = sessionsData.find(
                     (s: QuizSession) => s.status === "live"
                 );
@@ -232,7 +217,6 @@ export default function QuizManage() {
                 }
             }
         } catch (error) {
-            console.error("Error loading data:", error);
             showToastMessage("Failed to load data from database", "error");
         } finally {
             setLoading(false);
@@ -248,7 +232,6 @@ export default function QuizManage() {
                 const sessions = await response.json();
                 setQuizSessions(sessions);
                 
-                // If we have a current session, refresh its data
                 if (currentSession) {
                     const updatedSession = sessions.find(
                         (s: QuizSession) => s.id === currentSession.id
@@ -260,7 +243,6 @@ export default function QuizManage() {
                 }
             }
         } catch (error) {
-            console.error("Error refreshing sessions:", error);
         } finally {
             setRefreshing(false);
         }
@@ -274,10 +256,8 @@ export default function QuizManage() {
             if (response.ok) {
                 const data = await response.json();
                 setParticipants(data);
-                console.log("Loaded participants:", data);
             }
         } catch (error) {
-            console.error("Error loading participants:", error);
         }
     };
 
@@ -310,11 +290,9 @@ export default function QuizManage() {
 
             if (response.ok) {
                 const session = await response.json();
-                console.log("Created pending session:", session);
                 setIsCreatingSession(false);
                 setNewSessionTitle("");
                 
-                // Refresh sessions list
                 await refreshSessions();
                 
                 showToastMessage(
@@ -325,16 +303,13 @@ export default function QuizManage() {
                 showToastMessage("Failed to create quiz session", "error");
             }
         } catch (error) {
-            console.error("Error creating quiz session:", error);
             showToastMessage("Failed to create quiz session", "error");
         }
     };
 
     const startQuiz = async () => {
-        // Using an existing session
         if (currentSession) {
             try {
-                // Update session status to live
                 const updateResponse = await fetch(
                     `/api/quiz-sessions/${currentSession.id}`,
                     {
@@ -348,7 +323,6 @@ export default function QuizManage() {
                 );
 
                 if (updateResponse.ok) {
-                    console.log("Session marked as live");
                     
                     const updatedSession = await updateResponse.json();
                     setCurrentSession(updatedSession);
@@ -361,7 +335,6 @@ export default function QuizManage() {
                         sessionId: currentSession.id,
                     });
 
-                    // Load initial participants
                     await loadParticipants(currentSession.id);
                     await refreshSessions();
 
@@ -371,7 +344,6 @@ export default function QuizManage() {
                     );
                 }
             } catch (error) {
-                console.error("Error starting quiz:", error);
                 showToastMessage("Failed to start quiz", "error");
             }
         } else {
@@ -401,7 +373,6 @@ export default function QuizManage() {
                     "success"
                 );
             } catch (error) {
-                console.error("Error stopping quiz:", error);
                 showToastMessage("Failed to stop quiz", "error");
             }
         }
@@ -414,7 +385,6 @@ export default function QuizManage() {
             const newIndex = quizState.currentQuestionIndex + 1;
 
             try {
-                // Update session in database
                 await fetch(`/api/quiz-sessions/${currentSession.id}`, {
                     method: "PATCH",
                     headers: { "Content-Type": "application/json" },
@@ -435,10 +405,8 @@ export default function QuizManage() {
                     "success"
                 );
             } catch (error) {
-                console.error("Error moving to next question:", error);
             }
         } else {
-            // Quiz finished
             try {
                 await fetch(`/api/quiz-sessions/${currentSession.id}`, {
                     method: "PATCH",
@@ -456,7 +424,6 @@ export default function QuizManage() {
                 
                 showToastMessage("Quiz completed!", "success");
             } catch (error) {
-                console.error("Error completing quiz:", error);
             }
         }
     };
@@ -504,7 +471,6 @@ export default function QuizManage() {
             });
 
             if (response.ok) {
-                // If we were viewing this session, clear it
                 if (currentSession?.id === id) {
                     setCurrentSession(null);
                 }
@@ -515,7 +481,6 @@ export default function QuizManage() {
                 showToastMessage("Failed to delete quiz session", "error");
             }
         } catch (error) {
-            console.error("Error deleting quiz session:", error);
             showToastMessage("Failed to delete quiz session", "error");
         }
     };
@@ -554,7 +519,6 @@ export default function QuizManage() {
                 showToastMessage("Question added successfully!", "success");
             }
         } catch (error) {
-            console.error("Error adding question:", error);
             showToastMessage("Failed to add question", "error");
         }
     };
@@ -578,7 +542,6 @@ export default function QuizManage() {
                 showToastMessage("Question deleted successfully!", "success");
             }
         } catch (error) {
-            console.error("Error deleting question:", error);
             showToastMessage("Failed to delete question", "error");
         }
     };
@@ -594,10 +557,8 @@ export default function QuizManage() {
         );
     }
 
-    // const regularUsers = users.filter((user) => !user.email?.includes("admin"));
     const currentQuestion = questions[quizState.currentQuestionIndex];
 
-    // Display loading state while checking authentication
     if (isSessionLoading || (session && !authChecked)) {
         return (
             <div className="snap-end min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
@@ -609,8 +570,6 @@ export default function QuizManage() {
         );
     }
 
-    // If authentication check is done and user is not authenticated or not admin, 
-    // we'll redirect them, but show a message until the redirection happens
     if (!session || !authChecked) {
         return (
             <div className="snap-end min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">

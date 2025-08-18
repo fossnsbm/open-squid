@@ -49,7 +49,6 @@ export default function LiveQuizPage() {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
-    // Quiz state
     const [isJoined, setIsJoined] = useState(false);
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
     const [hasAnswered, setHasAnswered] = useState(false);
@@ -58,7 +57,6 @@ export default function LiveQuizPage() {
     const [userScore, setUserScore] = useState(0);
     const [questionsAnswered, setQuestionsAnswered] = useState(0);
 
-    // Toast state
     const [toast, setToast] = useState<{
         message: string;
         type: "success" | "error";
@@ -71,33 +69,25 @@ export default function LiveQuizPage() {
 
     const currentQuestion = questions[currentQuestionIndex];
 
-    // Load initial data
     useEffect(() => {
         loadInitialData();
     }, []);
 
-    // Monitor session changes and sync question index
     useEffect(() => {
-        console.log("[DEBUG] Monitor effect - currentSession:", currentSession ? 
-                  `ID: ${currentSession.id}, Status: ${currentSession.status}` : "null");
                   
         if (currentSession && currentSession.status === "live") {
             const sessionQuestionIndex =
                 currentSession.currentQuestionIndex || 0;
 
             if (sessionQuestionIndex !== currentQuestionIndex) {
-                console.log("[DEBUG] Syncing question index:", sessionQuestionIndex);
-                // Admin moved to different question, sync up
                 setCurrentQuestionIndex(sessionQuestionIndex);
                 setTimeLeft(currentSession?.timePerQuestion || 10);
                 setSelectedAnswer(null);
                 setHasAnswered(false);
             }
 
-            // Only check for updates when quiz is live
             const interval = setInterval(() => {
                 if (currentSession) {
-                    console.log("[DEBUG] Live polling update");
                     refreshCurrentSession(currentSession.id);
                 }
             }, 3000);
@@ -106,7 +96,6 @@ export default function LiveQuizPage() {
         }
     }, [currentSession?.currentQuestionIndex, currentSession?.status, currentSession?.id]);
 
-        // Quiz timer - counts down from timeLeft
     useEffect(() => {
         let interval: NodeJS.Timeout;
 
@@ -114,10 +103,7 @@ export default function LiveQuizPage() {
             interval = setInterval(() => {
                 setTimeLeft((prev) => {
                     if (prev <= 1) {
-                        // When timer reaches 0, auto-submit the selected answer
-                        console.log("[DEBUG] Timer reached 0, preparing to submit answer");
                         
-                        // Return 0 - the "time's up" effect will handle submission
                         return 0;
                     }
                     return prev - 1;
@@ -128,21 +114,14 @@ export default function LiveQuizPage() {
         return () => clearInterval(interval);
     }, [currentSession, timeLeft, hasAnswered]);
     
-    // Add a new effect to handle "locked" state when timer runs out
     useEffect(() => {
         if (timeLeft === 0 && !hasAnswered && currentSession?.status === "live") {
-            console.log("[DEBUG] Time's up! Handling final answer");
             
-            // Add a small delay to create a "locking in" feel
             const submissionTimeout = setTimeout(() => {
-                // If time has run out and user hasn't answered, lock in their current selection
-                // or mark as "no answer" if nothing selected
                 if (selectedAnswer !== null) {
-                    // Auto submit the selected answer when time runs out
                     submitAnswer(selectedAnswer);
                     showToast("Time's up! Answer submitted", "success");
                 } else {
-                    // Mark question as "answered" with no selection (user didn't choose anything)
                     setHasAnswered(true);
                     showToast("Time's up! No answer selected", "error");
                 }
@@ -155,7 +134,6 @@ export default function LiveQuizPage() {
     const loadInitialData = async () => {
         try {
             setLoading(true);
-            // Load questions
             const questionsRes = await fetch("/api/questions");
 
             if (questionsRes.ok) {
@@ -163,26 +141,21 @@ export default function LiveQuizPage() {
                     const questionsData = await questionsRes.json();
                     
                     if (!questionsData || !Array.isArray(questionsData)) {
-                        console.warn("Received invalid questions data");
                         showToast("Failed to load questions data", "error");
                         return;
                     }
                     
                     setQuestions(questionsData);
                 } catch (err) {
-                    console.error("Error parsing questions response:", err);
                     showToast("Failed to process questions data", "error");
                 }
             } else {
-                console.error("Failed to load questions:", questionsRes.status);
                 showToast("Failed to load questions", "error");
             }
 
-            // Load all available sessions (pending and live)
             await loadAvailableSessions();
             
         } catch (error) {
-            console.error("Error loading data:", error);
             showToast("Failed to load initial data", "error");
         } finally {
             setLoading(false);
@@ -192,7 +165,6 @@ export default function LiveQuizPage() {
     const loadAvailableSessions = async () => {
         try {
             setRefreshing(true);
-            // Get all quiz sessions (pending and live)
             const response = await fetch("/api/quiz-sessions");
 
             if (response.ok) {
@@ -200,15 +172,12 @@ export default function LiveQuizPage() {
                 try {
                     sessions = await response.json();
                     if (!sessions || !Array.isArray(sessions)) {
-                        console.warn("Received invalid sessions data:", sessions);
                         return;
                     }
                 } catch (err) {
-                    console.error("Error parsing sessions response:", err);
                     return;
                 }
                 
-                // Filter sessions by status
                 const pendingSessions = sessions.filter(
                     (s: QuizSession) => s?.status === "pending"
                 );
@@ -219,36 +188,28 @@ export default function LiveQuizPage() {
                     (s: QuizSession) => s?.status === "completed" && !liveSession
                 );
 
-                // Store available sessions for selection
                 setAvailableSessions([...pendingSessions]);
 
-                // If there's a live session, prioritize it
                 if (liveSession) {
                     setCurrentSession(liveSession);
                     
-                    // Auto-join if user is logged in
                     if (currentUser && !isJoined && liveSession) {
                         joinQuiz(liveSession.id);
                     }
                     
-                    // Sync question index and timer
                     const sessionQuestionIndex = liveSession?.currentQuestionIndex || 0;
                     setCurrentQuestionIndex(sessionQuestionIndex);
                     setTimeLeft(liveSession?.timePerQuestion || 10);
                     setSelectedAnswer(null);
                     setHasAnswered(false);
                 } 
-                // If no live session but there's a completed one
                 else if (completedSession) {
                     setCurrentSession(completedSession);
                 }
-                // Otherwise, if there's no current session selected but pending ones exist
                 else if (!currentSession && pendingSessions.length > 0) {
-                    // Don't auto-select, let user choose
                 }
             }
         } catch (error) {
-            console.error("Error loading available sessions:", error);
         } finally {
             setRefreshing(false);
         }
@@ -256,21 +217,13 @@ export default function LiveQuizPage() {
 
     let statusCheckInterval: NodeJS.Timeout;
 
-    // Polling for pending session status
     useEffect(() => {
         let intervalId: NodeJS.Timeout | undefined;
         
-        console.log("[DEBUG] Polling effect - isJoined:", isJoined, 
-                    "currentSession:", currentSession ? 
-                    `ID: ${currentSession.id}, Status: ${currentSession.status}` : "null");
         
-        // Only poll when the user has joined a pending session
         if (isJoined && currentSession?.status === "pending" && currentSession) {
-            console.log("Starting pending session polling");
             
-            // Check more frequently (every 3 seconds) while waiting for the quiz to start
             intervalId = setInterval(() => {
-                // Call the function to refresh the current session
                 if (currentSession) {  // Add null check
                     refreshCurrentSession(currentSession.id);
                 }
@@ -286,11 +239,8 @@ export default function LiveQuizPage() {
 
     const refreshCurrentSession = async (sessionId: string) => {
         try {
-            console.log("[DEBUG] Refreshing session with ID:", sessionId);
             
-            // Make sure we're using the correct API endpoint format
             const response = await fetch(`/api/quiz-sessions/active`, {
-                // Include no-cache headers to prevent browser caching
                 headers: {
                     'Cache-Control': 'no-cache',
                     'Pragma': 'no-cache'
@@ -302,37 +252,27 @@ export default function LiveQuizPage() {
                 try {
                     updatedSession = await response.json();
                     if (!updatedSession) {
-                        console.warn("Received empty session data");
                         return;
                     }
                     
-                    // Update session with latest data
                     setCurrentSession(updatedSession);
                     
-                    console.log("Session refreshed:", updatedSession?.status);
                 } catch (err) {
-                    console.error("Error parsing session response:", err);
                     return;
                 }
                 
-                // If status changed from pending to live, prepare the quiz
                 if (updatedSession?.status === "live" && currentSession?.status === "pending") {
-                    console.log("Quiz is now live! Preparing interface...");
                     
-                    // Set up the quiz interface
                     setCurrentQuestionIndex(updatedSession?.currentQuestionIndex || 0);
                     setTimeLeft(updatedSession?.timePerQuestion || 10);
                     setSelectedAnswer(null);
                     setHasAnswered(false);
                     
-                    // Show a toast notification
                     showToast("The quiz has started!", "success");
                 }
             } else {
-                console.error("Error refreshing session:", response.status, response.statusText);
             }
         } catch (error) {
-            console.error("Error refreshing session:", error);
         }
     };
 
@@ -364,13 +304,11 @@ export default function LiveQuizPage() {
                 setCurrentSession(targetSession);
                 showToast("Successfully joined the quiz!", "success");
                 
-                // Refresh the session data to get the latest info
                 refreshCurrentSession(sessionId);
             } else {
                 showToast("Failed to join quiz", "error");
             }
         } catch (error) {
-            console.error("Error joining quiz:", error);
             showToast("Failed to join quiz", "error");
         }
     };
@@ -379,14 +317,11 @@ export default function LiveQuizPage() {
         if (!currentUser || !currentSession || !currentQuestion || hasAnswered)
             return;
 
-        // Set a visual indication that we're processing the answer
         setSelectedAnswer(answerIndex);
             
         try {
-            console.log("[DEBUG] Submitting answer:", answerIndex);
             const isCorrect = answerIndex === currentQuestion.correctAnswer;
 
-            // Prepare API requests
             const answerRequest = fetch("/api/user-answers", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -401,11 +336,8 @@ export default function LiveQuizPage() {
                 }),
             });
             
-            // Prepare score update request if answer is correct
             let scoreUpdateRequest = Promise.resolve(new Response());
             if (isCorrect) {
-                // Send PATCH request to update participant's score
-                // The existing endpoint overwrites the score, so we need to maintain the existing score
                 const currentScore = userScore + 10; // Calculate new score
                 scoreUpdateRequest = fetch(
                     `/api/quiz-sessions/${currentSession.id}/participants/${currentUser.id}`, 
@@ -419,7 +351,6 @@ export default function LiveQuizPage() {
                 );
             }
             
-            // Execute both requests in parallel
             const [response, scoreResponse] = await Promise.all([
                 answerRequest,
                 scoreUpdateRequest
@@ -429,17 +360,11 @@ export default function LiveQuizPage() {
                 setHasAnswered(true);
                 setQuestionsAnswered(prev => prev + 1);
 
-                // Update score locally if correct
                 if (isCorrect) {
-                    // First update local state
                     setUserScore(prev => prev + 10); // Updating by 10 points for each correct answer
-                    console.log("[DEBUG] Score updated by +10 points");
                     
-                    // Check if the score update API call was successful
                     if (!scoreResponse.ok) {
-                        console.error("[DEBUG] Failed to update score on server:", await scoreResponse.text());
                     } else {
-                        console.log("[DEBUG] Score successfully updated on server");
                     }
                 }
 
@@ -451,7 +376,6 @@ export default function LiveQuizPage() {
                 showToast("Failed to submit answer", "error");
             }
         } catch (error) {
-            console.error("Error submitting answer:", error);
             showToast("Failed to submit answer", "error");
         }
     };
@@ -465,11 +389,9 @@ export default function LiveQuizPage() {
         setCurrentQuestionIndex(0);
         setUserScore(0);
         setQuestionsAnswered(0);
-        // Reload available sessions
         loadAvailableSessions();
     };
 
-    // Show loading state while session is being established or data is loading
     if (isSessionLoading || loading) {
         return (
             <div className="snap-end min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center pt-20 pb-20">
@@ -734,7 +656,6 @@ export default function LiveQuizPage() {
                                                             }
                                                             onChange={() => {
                                                                 if (!hasAnswered) {
-                                                                    // Only set the selected answer, don't submit yet
                                                                     setSelectedAnswer(index);
                                                                 }
                                                             }}
