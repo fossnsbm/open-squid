@@ -16,7 +16,7 @@ export default function Login() {
         }
 
         if (session && session.user?.role === 'user') {
-            router.push("/");
+            router.push("/playground");
         }
     }, [session, isPending, router]);
 
