@@ -2,7 +2,7 @@ import { db } from './index'
 
 import { questions ,quizSessions ,quizParticipants,userAnswers ,teams,promptSessions,promptParticipants,userPrompts ,puzzleMarks} from './schema'
 import { nanoid } from 'nanoid'
-import { eq ,sql,desc,and} from "drizzle-orm";
+import { eq ,sql,desc,and, ne} from "drizzle-orm";
 
 export async function createQuestion(
   question: string,
@@ -643,6 +643,7 @@ export async function getLeaderBoard() {
         totalScore, 
       })
       .from(teams)
+      .where(ne(teams.role, 'admin'))
       .leftJoin(quizParticipants, eq(teams.id, quizParticipants.userId))
       .leftJoin(promptParticipants, eq(teams.id, promptParticipants.userId))
       .leftJoin(puzzleMarks, eq(teams.id, puzzleMarks.userId))
