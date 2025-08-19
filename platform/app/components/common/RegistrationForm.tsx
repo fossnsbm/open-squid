@@ -468,7 +468,7 @@ export default function RegistrationForm() {
                     {/* Submit Button remains unchanged */}
                     <button
                         type="submit"
-                        disabled={isSubmitting}
+                        disabled={true}
                         className={`w-full bg-gradient-to-r from-pink-600 to-pink-900 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:from-pink-800 hover:to-pink-900'
                             } text-white py-2 px-4 rounded-md font-semibold tracking-wide transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-pink-600 text-sm cursor-pointer`}
                     >
