@@ -617,7 +617,7 @@ export default function QuizSurvival({ currentUser, isSessionLoading }: any) {
                                             {currentQuestion.question}
                                         </h3>
 
-                                        <div className="space-y-3">
+                                        <div className="space-y-3 normal-case">
                                             {currentQuestion.options.map(
                                                 (option, index) => (
                                                     <label
