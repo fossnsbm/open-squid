@@ -1,6 +1,6 @@
 import { db } from './index'
 
-import { questions ,quizSessions ,quizParticipants, users ,userAnswers ,teams,promptSessions,promptParticipants,userPrompts ,puzzleMarks} from './schema'
+import { questions ,quizSessions ,quizParticipants,userAnswers ,teams,promptSessions,promptParticipants,userPrompts ,puzzleMarks} from './schema'
 import { nanoid } from 'nanoid'
 import { eq ,sql,desc,and} from "drizzle-orm";
 
