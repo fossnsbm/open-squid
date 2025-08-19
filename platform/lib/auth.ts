@@ -18,6 +18,7 @@ export const auth = betterAuth({
         enabled: true,
         requireEmailVerification: false,
         autoSignIn: false,
+        disableSignUp: true,
     },
     user: {
         modelName: "team",
