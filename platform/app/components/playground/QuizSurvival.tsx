@@ -613,7 +613,7 @@ export default function QuizSurvival({ currentUser, isSessionLoading }: any) {
 
                                     {/* Question */}
                                     <div>
-                                        <h3 className="text-xl font-semibold text-white mb-4">
+                                        <h3 className="text-xl font-inter text-white mb-4 uppercase ">
                                             {currentQuestion.question}
                                         </h3>
 
@@ -654,7 +654,7 @@ export default function QuizSurvival({ currentUser, isSessionLoading }: any) {
                                                             }
                                                             className="w-4 h-4 text-pink-600 focus:ring-pink-500"
                                                         />
-                                                        <span className="flex-1">
+                                                        <span className="flex-1 font-inter">
                                                             {option}
                                                         </span>
                                                         {hasAnswered &&
