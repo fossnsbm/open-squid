@@ -104,7 +104,7 @@ const Header: React.FC = () => {
                     {(!session) ? (
                         <Link
                             href="/#register"
-                            className="text-pink-600 hover:text-pink-700 py-2 text-xl font-squid transition-colors duration-200 uppercase"
+                            className="text-pink-600 hover:text-pink-700 py-2 text-xl font-squid transition-colors duration-200 uppercase pointer-events-none"
                         >
                             Register Now
                         </Link>
